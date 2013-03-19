@@ -168,7 +168,7 @@ public class User extends ResponseAbstract {
 
         } else {
             data.put("is_success", false);
-            data.put("message", "Username already exists.");
+            data.put("message", "Confirm code is not valid.");
             this.setResponseInfo("res_sign_up_confirm", data);
             return this.getResponseJson();
         }
@@ -204,6 +204,14 @@ public class User extends ResponseAbstract {
 
             data.put("is_success", true);
             data.put("message", "Sign in successfully.");
+            data.put("user_id", u.getUserId());
+            data.put("username", u.getUsername());
+            data.put("email", u.getEmail());
+            data.put("fullname", u.getFullname());
+            data.put("date_create", u.getDateCreate());
+            data.put("balance", u.getBalance());
+            data.put("bitcoin_id", u.getBitcoinId());
+            
             u.setResponseInfo("res_sign_in", data);
 
             return u;
@@ -229,7 +237,7 @@ public class User extends ResponseAbstract {
             int rowAffected = 0;
             try {
                 rowAffected = this.databaseHandler.executeSQL(
-                        "USER_UPDATE_PASS_BY_USERNAME",
+                        "USER_UPDATE_PASS_BY_EMAIL",
                         new String[]{"new_password", "email_to_change"},
                         new Object[]{newPassword, email});
             } catch (SQLException ex) {
