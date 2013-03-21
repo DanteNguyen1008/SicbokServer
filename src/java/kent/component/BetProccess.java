@@ -111,6 +111,7 @@ public class BetProccess {
                     String strSpotsId = "";
                     String strIsWin = "";
                     String strAmount = "";
+                    String strSportsIdIsWin = "";
 
                     BetHistoryDetail bhd = new BetHistoryDetail();
                     // Foreach bet history detail, insert it.
@@ -124,6 +125,10 @@ public class BetProccess {
                         strSpotsId = strSpotsId + "|" + tempBetHisDetailList.get(i).getBetSpotId();
                         strIsWin = strIsWin + "|" + tempBetHisDetailList.get(i).getIsWin();
                         strAmount = strAmount + "|" + tempBetHisDetailList.get(i).getAmount();
+                        if (tempBetHisDetailList.get(i).getIsWin() == 1) {
+                            strSportsIdIsWin = strSportsIdIsWin + "|" + tempBetHisDetailList.get(i).getBetSpotId();
+                        }
+                        
                     }
                     JSONObject data = new JSONObject();
 
@@ -136,9 +141,11 @@ public class BetProccess {
                     data.put("totalbetamount", totalAmount);
                     data.put("totalwinamount", this.amountBet);
                     data.put("message", "Play successfully.");
-                    data.put("str_spots_id", strSpotsId);
-                    data.put("str_spots_is_win", strIsWin);
-                    data.put("str_spots_amount", strAmount);
+                    //data.put("str_spots_id", strSpotsId);
+                    //data.put("str_spots_is_win", strIsWin);
+                    //data.put("str_spots_amount", strAmount);
+                    data.put("winpatterns", strSportsIdIsWin);
+                    
                     this.user.setResponseInfo("res_play_bet", data);
 
                     return this.user.getResponseJson();
