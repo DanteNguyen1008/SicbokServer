@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import kent.component.BetProccess;
 import kent.component.User;
 import org.json.simple.JSONObject;
 
@@ -107,7 +108,6 @@ public class Portal extends HttpServlet {
                 u.setResponseInfo("res_forgot_password", data);
                 jsonResponse = u.getResponseJson();
             } else {
-                out.println(Utils.randomString(10));
                 String email = request.getParameter("email");
 
                 User utemp = new User();
@@ -151,6 +151,45 @@ public class Portal extends HttpServlet {
         }
 
 
+        
+        
+        
+        if ("play_bet".equals(typeOfRequest)) {
+            
+            String[] betSpots = request.getParameterValues("betspots");
+            String[] betAmounts = request.getParameterValues("betamounts");
+            int numOfSpots = betSpots.length;
+            User currentUser = null;
+
+            int[] spots = new int[numOfSpots];
+            float[] amounts = new float[numOfSpots];
+
+            // Transfer params in type of String into type in int, Float
+            for (int ibet = 0; ibet < numOfSpots; ibet++) {
+                spots[ibet] = Integer.parseInt(betSpots[ibet]);
+                amounts[ibet] = Float.parseFloat(betAmounts[ibet]);
+            }
+            
+            currentUser = (User) session.getAttribute("user");
+            if (session != null && currentUser != null) {
+                
+                BetProccess betProc = new BetProccess(currentUser);
+                try {
+                    jsonResponse = betProc.play(spots, amounts);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            } else {
+                
+                JSONObject data = new JSONObject();
+                User u = new User();
+                data.put("message", "You are not Sign in yet!");
+                u.setResponseInfo("res_play_bet", data);
+                jsonResponse = u.getResponseJson();
+            }
+        }
+        
 
 
 

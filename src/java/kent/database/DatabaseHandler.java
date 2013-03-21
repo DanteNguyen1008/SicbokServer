@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,7 +92,7 @@ public class DatabaseHandler {
                 }
             }
 
-            this.proc = this.connection.prepareCall("{call " + strProcedureName + " (" + parameterCount + ")}");                
+            this.proc = this.connection.prepareCall("{call " + strProcedureName + " (" + parameterCount + ")}");
             for (int i = 0; i < parameterNames.length; i++) {
                 this.proc.setObject(i + 1, parameterValues[i]);
             }
@@ -115,7 +116,7 @@ public class DatabaseHandler {
             String procedureName,
             String[] parameterNames,
             Object[] parameterValues) {
-            
+
         try {
             System.out.println("Sql query");
             if (this.connection == null || this.connection.isClosed()) {
@@ -141,7 +142,7 @@ public class DatabaseHandler {
             for (int i = 0; i < parameterNames.length; i++) {
                 this.proc.setObject(i + 1, parameterValues[i]);
             }
-            
+
             resultSet = this.proc.executeQuery();
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,4 +151,51 @@ public class DatabaseHandler {
         return resultSet;
     }
     //</editor-fold>
+
+    public int executeSQLAndGetId(
+            String strTableName,
+            String strTableId,
+            String strProcedureName,
+            String[] parameterNames,
+            Object[] parameterValues) throws SQLException {
+        int j = 0;
+        int insertedId = 0;
+
+        try {
+            if (this.connection == null || this.connection.isClosed()) {
+                this.connection = this.connectMySql("localhost:3306", "root", "", "kb_sicbok");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            String parameterCount = "";
+            for (int i = 0; i < parameterNames.length; i++) {
+                if (i == (parameterNames.length - 1)) {
+                    parameterCount += "?";
+                } else {
+                    parameterCount += "?,";
+                }
+            }
+
+            this.proc = this.connection.prepareCall("{call " + strProcedureName + " (" + parameterCount + ")}");
+            for (int i = 0; i < parameterNames.length; i++) {
+                this.proc.setObject(i + 1, parameterValues[i]);
+            }
+            j = this.proc.executeUpdate();
+
+            // Select last inserted Id
+            ResultSet rs2 = this.proc.executeQuery(
+                    "SELECT * FROM " + strTableName + 
+                    " ORDER BY " + strTableId + " DESC LIMIT 1");
+            while (rs2.next()) {
+                insertedId = rs2.getInt(1);
+            }
+
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return insertedId;
+    }
 }

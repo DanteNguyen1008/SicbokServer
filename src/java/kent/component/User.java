@@ -308,6 +308,24 @@ public class User extends ResponseAbstract {
             return this.getResponseJson();
         }
     }
+    
+    public boolean updateBalance(float newBalance) {
+        int affectedRow = 0;
+        try {
+            affectedRow = this.databaseHandler.executeSQL(
+                    "USER_UPDATE_BALANCE",
+                    new String[]{"newBalance", "userId"},
+                    new Object[]{newBalance, this.getUserId()});
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (affectedRow > 0) {
+            this.setBalance(newBalance);
+            return true;
+        }
+        return false;
+
+    }
 
     public boolean isExists(String username, String email) {
 
