@@ -103,7 +103,7 @@ public class BetProccess {
                 if (insertedId == 0) {
 
                     JSONObject data = new JSONObject();
-                    data.put("is_play_success", false);
+                    data.put("is_success", false);
                     data.put("message", "XXX. Some error occur in database.");
                     this.user.setResponseInfo("res_play_bet", data);
                     return this.user.getResponseJson();
@@ -146,7 +146,7 @@ public class BetProccess {
 
             } else {
                 JSONObject data = new JSONObject();
-                data.put("is_play_success", false);
+                data.put("is_success", false);
                 data.put("message", "Some error occur in database.");
                 this.user.setResponseInfo("res_play_bet", data);
                 return this.user.getResponseJson();

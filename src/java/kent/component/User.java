@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
+import kent.Hash;
 import kent.Portal;
 import kent.ResponseAbstract;
 import kent.SendMail;
@@ -31,6 +32,7 @@ public class User extends ResponseAbstract {
     private float balance;
     private String bitcoinId;
     private String registerConfirmCode;
+    private String forgotPassConfirmCode;
     private boolean isActive;
     private DatabaseHandler databaseHandler;
 
@@ -200,6 +202,7 @@ public class User extends ResponseAbstract {
             u.setBalance(rs.getFloat("balance"));
             u.setBitcoinId(rs.getString("bitcoin_id"));
             u.setRegisterConfirmCode(rs.getString("register_confirm_code"));
+            u.setForgotPassConfirmCode(rs.getString("forgot_pass_confirm_code"));
             u.setIsActive(true);
 
             data.put("is_success", true);
@@ -211,7 +214,7 @@ public class User extends ResponseAbstract {
             data.put("date_create", u.getDateCreate());
             data.put("balance", u.getBalance());
             data.put("bitcoin_id", u.getBitcoinId());
-            
+
             u.setResponseInfo("res_sign_in", data);
 
             return u;
@@ -231,6 +234,68 @@ public class User extends ResponseAbstract {
 
         // Check username Exists
         if (this.isExistsEmail(email)) {
+
+            String tempForgotPassConfirmCode = Hash.getHashSHA256(Utils.randomString(10));
+
+            int rowAffected = 0;
+            try {
+                rowAffected = this.databaseHandler.executeSQL(
+                        "USER_UPDATE_FORGOT_PASS_CONFIRM_CODE",
+                        new String[]{"forgotPassConfirmCode", "email"},
+                        new Object[]{tempForgotPassConfirmCode, email});
+            } catch (SQLException ex) {
+                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            if (rowAffected > 0) {
+                try {
+                    String resetPassLink = "http://localhost:8080/SicbokServer/Portal";
+                    resetPassLink += "?type_of_request=reset_password";
+                    resetPassLink += "&email=" + email;
+                    resetPassLink += "&code=" + tempForgotPassConfirmCode;
+
+                    String exEmailTitle = "Sicbo game!!! Reset password";
+                    String exEmailContent = "<h1>Reset passwod in Sicbo game system.</h1>";
+                    exEmailContent += "<p>You have request Sicbo game system to reset your password.</p>";
+                    exEmailContent += "<p>If you do. Click following link to reset password:</p>";
+                    exEmailContent += "<p>" + resetPassLink + "</p>";
+                    exEmailContent += "<p>If not, bypass this email.</p>";
+                    exEmailContent += "<p>Thank you very much!</p>";
+                    SendMail sendMail = new SendMail(email);
+                    sendMail.sendMail(exEmailTitle, exEmailContent);
+
+                } catch (MessagingException ex) {
+                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                data.put("is_success", true);
+                data.put("message", "Email for reset password has been sent to your email.");
+                this.setResponseInfo("res_forgot_password", data);
+                return this.getResponseJson();
+            }
+            else {
+                data.put("is_success", false);
+                data.put("message", "Some database error occurred..");
+                this.setResponseInfo("res_forgot_password", data);
+                return this.getResponseJson();
+            }
+
+        } else {
+            data.put("is_success", false);
+            data.put("message", "No email found.");
+            this.setResponseInfo("res_forgot_password", data);
+            return this.getResponseJson();
+        }
+    }
+    // Forgot password
+
+    public JSONObject resetPassowrd(
+            String email, String code) {
+
+        JSONObject data = new JSONObject();
+
+        // Check username Exists
+        if (this.isValidConfirmForgotPass(email, code)) {
 
             String newPassword = Utils.randomString(10);
 
@@ -265,7 +330,7 @@ public class User extends ResponseAbstract {
             }
         } else {
             data.put("is_success", false);
-            data.put("message", "No email found.");
+            data.put("message", "No email found. Or code wrong.");
             this.setResponseInfo("res_forgot_password", data);
             return this.getResponseJson();
         }
@@ -308,7 +373,7 @@ public class User extends ResponseAbstract {
             return this.getResponseJson();
         }
     }
-    
+
     public boolean updateBalance(float newBalance) {
         int affectedRow = 0;
         try {
@@ -357,6 +422,33 @@ public class User extends ResponseAbstract {
 
         ResultSet rs = this.databaseHandler.executeQuery(
                 "USER_SELECT_SIGNUP_CONFIRM",
+                new String[]{"email_to_check", "code_to_check"},
+                new Object[]{email, confirmCode});
+
+        int count = 0;
+        try {
+            while (rs.next()) {
+                count++;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+        if (count == 0) {
+            System.out.println("False! Confirm code not exists!");
+            return false;
+        } else {
+            System.out.println("Ok! Confirm code is right.");
+            return true;
+        }
+    }
+    
+    // Check validation of Forgot password Confirm Code
+    public boolean isValidConfirmForgotPass(String email, String confirmCode) {
+
+        ResultSet rs = this.databaseHandler.executeQuery(
+                "USER_SELECT_FORGOT_PASS_CONFIRM_CODE",
                 new String[]{"email_to_check", "code_to_check"},
                 new Object[]{email, confirmCode});
 
@@ -556,6 +648,20 @@ public class User extends ResponseAbstract {
      */
     public void setRegisterConfirmCode(String registerConfirmCode) {
         this.registerConfirmCode = registerConfirmCode;
+    }
+
+    /**
+     * @return the forgotPassConfirmCode
+     */
+    public String getForgotPassConfirmCode() {
+        return forgotPassConfirmCode;
+    }
+
+    /**
+     * @param forgotPassConfirmCode the forgotPassConfirmCode to set
+     */
+    public void setForgotPassConfirmCode(String forgotPassConfirmCode) {
+        this.forgotPassConfirmCode = forgotPassConfirmCode;
     }
 
     /**

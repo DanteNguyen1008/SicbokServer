@@ -108,7 +108,7 @@ public class Portal extends HttpServlet {
                 u.setResponseInfo("res_forgot_password", data);
                 jsonResponse = u.getResponseJson();
             } else {
-                String email = request.getParameter("email");
+                String email = request.getParameter("email");                
 
                 User utemp = new User();
                 jsonResponse = utemp.forgotPassowrd(email);
@@ -116,16 +116,27 @@ public class Portal extends HttpServlet {
             }
         }
 
+        // Reset password after send forgot password request
+        if ("reset_password".equals(typeOfRequest)) {
+
+            String email = request.getParameter("email");
+            String code = request.getParameter("code");
+
+            User utemp = new User();
+            jsonResponse = utemp.resetPassowrd(email, code);
+
+        }
+
         // Change password.
         if ("change_password".equals(typeOfRequest)) {
-            
+
             User currentUser = null;
             String passwordOld = request.getParameter("old_pass");
             String passwordNew = request.getParameter("new_pass");
 
             currentUser = (User) session.getAttribute("user");
             if (session != null && currentUser != null) {
-                
+
                 jsonResponse = currentUser.changePassowrd(currentUser, passwordOld, passwordNew);
 
             } else {
@@ -151,11 +162,11 @@ public class Portal extends HttpServlet {
         }
 
 
-        
-        
-        
+
+
+
         if ("play_bet".equals(typeOfRequest)) {
-            
+
             String[] betSpots = request.getParameterValues("betspots");
             String[] betAmounts = request.getParameterValues("betamounts");
             int numOfSpots = betSpots.length;
@@ -169,10 +180,10 @@ public class Portal extends HttpServlet {
                 spots[ibet] = Integer.parseInt(betSpots[ibet]);
                 amounts[ibet] = Float.parseFloat(betAmounts[ibet]);
             }
-            
+
             currentUser = (User) session.getAttribute("user");
             if (session != null && currentUser != null) {
-                
+
                 BetProccess betProc = new BetProccess(currentUser);
                 try {
                     jsonResponse = betProc.play(spots, amounts);
@@ -181,7 +192,7 @@ public class Portal extends HttpServlet {
                 }
 
             } else {
-                
+
                 JSONObject data = new JSONObject();
                 User u = new User();
                 data.put("message", "You are not Sign in yet!");
@@ -189,7 +200,7 @@ public class Portal extends HttpServlet {
                 jsonResponse = u.getResponseJson();
             }
         }
-        
+
 
 
 

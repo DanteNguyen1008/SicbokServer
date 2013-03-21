@@ -14,7 +14,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Hash {
 
-    static String getHashSHA256(String password) {
+    public static String getHashSHA256(String password) {
         MessageDigest digest = null;
         try {
             digest = MessageDigest.getInstance("SHA-256");
