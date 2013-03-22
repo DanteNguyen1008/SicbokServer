@@ -90,13 +90,16 @@ public class BetProccess {
                 this.currentBalance = this.user.getBalance();
 
                 int insertedId = 0;
-
+                    
+                String dices = this.rng.getDice1() + "|" + 
+                        this.rng.getDice2() + "|" + 
+                        this.rng.getDice3();
                 insertedId = this.databaseHandler.executeSQLAndGetId(
                         "kb_bet_history",
                         "bet_history_id",
                         "BET_HISTORY_INSERT",
-                        new String[]{"userId", "betDate", "isWin", "balance"},
-                        new Object[]{this.user.getUserId(), betDate, isWin, this.currentBalance});
+                        new String[]{"userId", "betDate", "isWin", "balance", "dice"},
+                        new Object[]{this.user.getUserId(), betDate, isWin, this.currentBalance, dices});
 
 
                 // if bet history insert successfully

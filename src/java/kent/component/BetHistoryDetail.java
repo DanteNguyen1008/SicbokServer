@@ -45,6 +45,7 @@ public class BetHistoryDetail {
             do {
                 temp = new BetHistoryDetail();
                 // Get data from the current row and use it
+                temp.setBetHistoryId(rs.getInt("bet_history_detail_id"));
                 temp.setBetHistoryId(rs.getInt("bet_history_id"));
                 temp.setBetSpotId(rs.getInt("bet_spot_id"));
                 temp.setIsWin(rs.getInt("is_win"));

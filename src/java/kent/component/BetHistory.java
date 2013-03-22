@@ -17,17 +17,19 @@ import kent.database.DatabaseHandler;
  */
 public class BetHistory {
 
+    private int BetHistoryId;
     private int userId;
     private String betDate;
+    private String dices;
     private int isWin;
     private float balance;
     private DatabaseHandler databaseHandler;
-    
+
     public BetHistory() {
         this.databaseHandler = new DatabaseHandler();
     }
 
-    public ArrayList<BetHistory> getHistoryList(int userId) throws SQLException {
+    public ArrayList<BetHistory> getBetHistoryList(int userId) throws SQLException {
         ArrayList<BetHistory> result = null;
         BetHistory temp = null;
 
@@ -39,12 +41,14 @@ public class BetHistory {
             System.out.println("No records found");
         } else {
             result = new ArrayList<BetHistory>();
-            
+
             do {
                 temp = new BetHistory();
                 // Get data from the current row and use it
+                temp.BetHistoryId = rs.getInt("bet_history_id");
                 temp.userId = rs.getInt("user_id");
-                temp.betDate = rs.getString("bet_date");
+                temp.betDate = rs.getString("date_of_bet");
+                temp.dices = rs.getString("dices");
                 temp.isWin = rs.getInt("is_win");
                 temp.balance = rs.getFloat("balance");
                 result.add(temp);
@@ -58,7 +62,8 @@ public class BetHistory {
             int userId,
             long betDate,
             int isWin,
-            float balance) {
+            float balance,
+            String dices) {
         /*
          * Execute SQL
          */
@@ -66,8 +71,8 @@ public class BetHistory {
         try {
             rowAffected = this.databaseHandler.executeSQL(
                     "BET_HISTORY_INSERT",
-                    new String[]{"userId", "betDate", "isWin", "balance"},
-                    new Object[]{userId, betDate, isWin, balance});
+                    new String[]{"userId", "betDate", "isWin", "balance", "dice"},
+                    new Object[]{userId, betDate, isWin, balance, dices});
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -79,6 +84,20 @@ public class BetHistory {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Encapsulate fields">
+    /**
+     * @return the BetHistoryId
+     */
+    public int getBetHistoryId() {
+        return this.BetHistoryId;
+    }
+
+    /**
+     * @param betHistoryId the betHistoryId to set
+     */
+    public void setBetHistoryId(int betHistoryId) {
+        this.BetHistoryId = betHistoryId;
+    }
+
     /**
      * @return the getUserId
      */
@@ -119,6 +138,21 @@ public class BetHistory {
      */
     public void setBetDate(String betDay) {
         this.betDate = betDay;
+
+    }
+
+    /**
+     * @return the probability
+     */
+    public String getDices() {
+        return this.dices;
+    }
+
+    /**
+     * @param betDay the betDay to set
+     */
+    public void setDices(String dices) {
+        this.dices = dices;
     }
 
     /**

@@ -7,6 +7,7 @@ package kent;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import kent.component.BetHistory;
+import kent.component.BetHistoryDetail;
 import kent.component.BetProccess;
 import kent.component.User;
 import org.json.simple.JSONObject;
@@ -108,7 +111,7 @@ public class Portal extends HttpServlet {
                 u.setResponseInfo("res_forgot_password", data);
                 jsonResponse = u.getResponseJson();
             } else {
-                String email = request.getParameter("email");                
+                String email = request.getParameter("email");
 
                 User utemp = new User();
                 jsonResponse = utemp.forgotPassowrd(email);
@@ -201,6 +204,78 @@ public class Portal extends HttpServlet {
             }
         }
 
+
+        if ("view_bet_history".equals(typeOfRequest)) {
+
+            User currentUser = (User) session.getAttribute("user");
+
+            if (session != null && currentUser != null) {
+
+                BetHistory betHistory = new BetHistory();
+                BetHistoryDetail betHistoryDetail = new BetHistoryDetail();
+                ArrayList<BetHistory> betHistoryList = null;
+                try {
+                    betHistoryList = betHistory.getBetHistoryList(currentUser.getUserId());
+                } catch (SQLException ex) {
+                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+
+                JSONObject data = new JSONObject();
+                User u = new User();
+                data.put("num_of_item", betHistoryList.size());
+
+                for (int i = 0; i < betHistoryList.size(); i++) {
+                    JSONObject historyjs = new JSONObject();
+                    boolean iswin = (betHistoryList.get(i).getIsWin() == 1) ? true : false;
+
+                    historyjs.put("dices", betHistoryList.get(i).getDices());
+                    historyjs.put("iswin", iswin);
+                    historyjs.put("betdate", betHistoryList.get(i).getBetDate());
+                    historyjs.put("balance", betHistoryList.get(i).getBalance());
+
+                    // Get history detail
+                    ArrayList<BetHistoryDetail> betHistoryDetailList = null;
+                    try {
+                        betHistoryDetailList = betHistoryDetail.getHistoryDetailList(
+                                betHistoryList.get(i).getBetHistoryId());
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    String betSpots = "";
+                    String betSpotsAmount = "";
+                    String betSpotsWin = "";
+                    String betSpotsWinAmount = "";
+                    for (int ihd = 0; ihd < betHistoryDetailList.size(); ihd++) {
+                        betSpots = betSpots + "|" + betHistoryDetailList.get(ihd).getBetSpotId();
+                        betSpotsAmount = betSpotsAmount + "|" + betHistoryDetailList.get(ihd).getAmount();
+                        // If win
+                        if ((int) betHistoryDetailList.get(ihd).getIsWin() == 1) {
+                            betSpotsWin = betSpotsWin + "|" + betHistoryDetailList.get(ihd).getBetSpotId();
+                            betSpotsWinAmount = betSpotsWinAmount + "|" + betHistoryDetailList.get(ihd).getAmount();
+                        }
+                    }
+                    historyjs.put("bet_spots", betSpots);
+                    historyjs.put("bet_spots_amount", betSpotsAmount);
+                    historyjs.put("bet_spots_win", betSpotsWin);
+                    historyjs.put("bet_spots_win_amount", betSpotsWinAmount);
+                    
+                    data.put(i + "", historyjs);
+                }
+
+
+                u.setResponseInfo("res_play_bet", data);
+                jsonResponse = u.getResponseJson();
+
+            } else {
+                JSONObject data = new JSONObject();
+                User u = new User();
+                data.put("message", "You are not Sign yet!");
+                u.setResponseInfo("res_change_password", data);
+                jsonResponse = u.getResponseJson();
+            }
+
+        }
 
 
 
