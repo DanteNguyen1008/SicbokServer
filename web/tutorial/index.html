@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="target-densitydpi=device-dpi" />  
+<title>Untitled Document</title>
+<link rel="stylesheet" type="text/css" href="css/reset.css">
+<link rel="stylesheet" type="text/css" href="css/css.css">
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$('.next').click(function(){
+				var intPosition = 0;
+				var imgPosition = $('body').css('background-position').split(" ");
+				 intPosition = parseInt(imgPosition[0].replace("px",""));
+				 if(intPosition>= 0){
+					 $('.prev').css('display', "block");
+				 }
+					if(intPosition == -4000){
+						$('.next').css('display', "none");
+						
+					} else {
+						$('.next').css('display', "block");
+					}
+					$('body').css('background-position',intPosition - 800+"px" + " 0px");
+					
+				});
+				$('.prev').click(function(){
+				var intPosition = 0;
+				var imgPosition = $('body').css('background-position').split(" ");
+				intPosition = parseInt(imgPosition[0].replace("px",""));
+				console.log(intPosition);
+					if(intPosition < -800){
+						$('.prev').css('display', "block");
+						$('.next').css('display', "block");
+					} else {
+						
+						$('.prev').css('display', "none");
+					}
+					$('body').css('background-position',intPosition + 800+"px" + " 0px");
+					
+				});
+		});
+	</script>
+</head>
+<body style="background-position:0 0;">
+<a class="prev" style="display:none"><span><< Previous</span></a>
+
+<a class="next"><span>Next >></span></a>
+</body>
+</html>
