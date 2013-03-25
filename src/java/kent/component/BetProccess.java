@@ -32,7 +32,7 @@ public class BetProccess {
         this.ptn = new Pattern();
         this.spot = new Spots();
         this.history = new BetHistory();
-        databaseHandler = new DatabaseHandler();
+        databaseHandler = DatabaseHandler.getInstance();
     }
 
     public JSONObject play(int[] spots, float[] amounts) throws SQLException {

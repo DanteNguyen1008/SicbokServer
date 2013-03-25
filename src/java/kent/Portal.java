@@ -79,6 +79,8 @@ public class Portal extends HttpServlet {
             jsonResponse = u.signUpConfirm(email, code);
         }
 
+
+
         // SIgn in
         if ("sign_in".equals(typeOfRequest)) {
 
@@ -88,7 +90,7 @@ public class Portal extends HttpServlet {
             User utemp = new User();
             User u = new User();
             try {
-                u = utemp.signIn(username, password);
+                u = utemp.signIn(username, password); //This method u can change to static, dont need to create a new user temp instance
             } catch (SQLException ex) {
                 Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -100,6 +102,32 @@ public class Portal extends HttpServlet {
             jsonResponse = u.getResponseJson();
         }
 
+        if ("sign_in_facebook".equals(typeOfRequest)) {
+            User userOperation = new User();
+            User user = null;
+            try {
+                String email = request.getParameter("email");
+                User.UserError error = userOperation.checkEmailFacebookExist(email);
+                if (error.equals(User.UserError.FBEMAIL_EXIST)) {
+                    //Email facebook exist => login without password
+                    user = userOperation.facebookSignin(email);
+                    if (user.getUserId() != 0) {
+                        session.setAttribute("user", user);
+                    }
+                    jsonResponse = user.getResponseJson();
+                } else if (error.equals(User.UserError.FBEMAIL_NOT_EXIST)) {
+                    //Fb email not exist => make a register for the fb email
+                    userOperation.facebookResponseRegister(email);
+                    jsonResponse = userOperation.getResponseJson();
+                } else if (error.equals(User.UserError.FBEMAIL_INVALID)) {
+                    //Fb email invalid => reason : the email exist on the system but not login as a facebook account before
+                    userOperation.facebookSignInInvalid();
+                    jsonResponse = userOperation.getResponseJson();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
         // FOrgot password
         if ("forgot_password".equals(typeOfRequest)) {
@@ -163,11 +191,6 @@ public class Portal extends HttpServlet {
             u.setResponseInfo("res_sign_out", data);
             jsonResponse = u.getResponseJson();
         }
-
-
-
-
-
         if ("play_bet".equals(typeOfRequest)) {
 
             String[] betSpots = request.getParameterValues("betspots");
@@ -259,7 +282,7 @@ public class Portal extends HttpServlet {
                     historyjs.put("bet_spots_amount", betSpotsAmount);
                     historyjs.put("bet_spots_win", betSpotsWin);
                     historyjs.put("bet_spots_win_amount", betSpotsWinAmount);
-                    
+
                     data.put(i + "", historyjs);
                 }
 

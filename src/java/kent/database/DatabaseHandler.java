@@ -19,9 +19,27 @@ import java.util.logging.Logger;
  */
 public class DatabaseHandler {
 
+    /**
+     * Singleton implementation
+     */
+    private static DatabaseHandler INSTANCE = null;
+
+    private DatabaseHandler() {
+    }
+
+    public static DatabaseHandler getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new DatabaseHandler();
+        }
+        return INSTANCE;
+    }
     private Connection connection = null;//The database connection.
     private String strError;
     private CallableStatement proc;
+    private String strHostURL = "localhost:3306";
+    private String strUsername = "root";
+    private String strPassword = "";
+    private String strDatabaseName = "kb_sicbok";
 
     //<editor-fold defaultstate="collapsed" desc="Connect Mysql">
     /**
@@ -33,19 +51,15 @@ public class DatabaseHandler {
      * @return
      * @throws SQLException
      */
-    public Connection connectMySql(
-            String strServerName,
-            String strUser,
-            String strPass,
-            String strDatabase) throws SQLException {
+    public Connection connectMySql() throws SQLException {
 
         Connection con = null;
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             con = DriverManager.getConnection(
-                    "jdbc:mysql://" + strServerName + "/" + strDatabase,
-                    strUser,
-                    strPass);
+                    "jdbc:mysql://" + strHostURL + "/" + strDatabaseName,
+                    strUsername,
+                    strPassword);
             System.out.println("Connected");
 
         } catch (ClassNotFoundException e) {
@@ -77,7 +91,7 @@ public class DatabaseHandler {
 
         try {
             if (this.connection == null || this.connection.isClosed()) {
-                this.connection = this.connectMySql("localhost:3306", "root", "", "kb_sicbok");
+                this.connection = this.connectMySql();
             }
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -100,6 +114,7 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         return j;
     }
     //</editor-fold>
@@ -120,7 +135,7 @@ public class DatabaseHandler {
         try {
             System.out.println("Sql query");
             if (this.connection == null || this.connection.isClosed()) {
-                this.connection = connectMySql("localhost:3306", "root", "", "kb_sicbok");
+                this.connection = connectMySql();
             }
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -163,7 +178,7 @@ public class DatabaseHandler {
 
         try {
             if (this.connection == null || this.connection.isClosed()) {
-                this.connection = this.connectMySql("localhost:3306", "root", "", "kb_sicbok");
+                this.connection = this.connectMySql();
             }
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -186,8 +201,8 @@ public class DatabaseHandler {
 
             // Select last inserted Id
             ResultSet rs2 = this.proc.executeQuery(
-                    "SELECT * FROM " + strTableName + 
-                    " ORDER BY " + strTableId + " DESC LIMIT 1");
+                    "SELECT * FROM " + strTableName
+                    + " ORDER BY " + strTableId + " DESC LIMIT 1");
             while (rs2.next()) {
                 insertedId = rs2.getInt(1);
             }
