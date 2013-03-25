@@ -132,7 +132,8 @@ public class User extends ResponseAbstract {
             float balance,
             String bitcoinId,
             String registerConfirmCode,
-            boolean isActive) {
+            boolean isActive,
+            boolean is_facebook_account) {
 
         JSONObject data = new JSONObject();
 
@@ -152,9 +153,9 @@ public class User extends ResponseAbstract {
             rowAffected = this.databaseHandler.executeSQL(
                     "USER_INSERT",
                     new String[]{"inUsername", "inPassword", "inEmail", "inFullname", "inDateCreate",
-                "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive"},
+                "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive", "is_facebook_connected"},
                     new Object[]{username, password, email, fullname, dateCreate,
-                balance, bitcoinId, registerConfirmCode, isActive});
+                balance, bitcoinId, registerConfirmCode, isActive, is_facebook_account});
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }

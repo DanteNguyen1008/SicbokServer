@@ -58,6 +58,7 @@ public class Portal extends HttpServlet {
             String password = request.getParameter("password");
             String email = request.getParameter("email");
             String fullname = request.getParameter("fullname");
+            boolean is_facebook_account = Boolean.parseBoolean(request.getParameter("is_facebook_account"));
             long dateCreate = System.currentTimeMillis() / 1000;
             float balance = 1000;
             String bitcoinId = request.getParameter("bitcoin_id");
@@ -66,7 +67,7 @@ public class Portal extends HttpServlet {
 
             User u = new User();
             jsonResponse = u.signUp(username, password, email, fullname,
-                    dateCreate, balance, bitcoinId, registerConfirmCode, isActive);
+                    dateCreate, balance, bitcoinId, registerConfirmCode, isActive, is_facebook_account);
         }
 
         if ("confirm_sign_up".equals(typeOfRequest)) {
