@@ -97,7 +97,7 @@ public class User extends ResponseAbstract {
                 new String[]{"email"},
                 new Object[]{email});
 
-        return signInHandle(rs);
+        return signInHandle(rs, true);
     }
 
     public UserError checkEmailFacebookExist(String email) throws SQLException {
@@ -140,7 +140,7 @@ public class User extends ResponseAbstract {
         // Check username Exists
         if (this.isExists(username, email)) {
             data.put("is_success", false);
-            data.put("message", "Username already exists.");
+            data.put("message", "Username or email already exists.");
             this.setResponseInfo("res_signup", data);
             return this.getResponseJson();
         }
@@ -149,6 +149,7 @@ public class User extends ResponseAbstract {
          * Execute SQL
          */
         int rowAffected = 1;
+        isActive = is_facebook_account;
         try {
             rowAffected = this.databaseHandler.executeSQL(
                     "USER_INSERT",
@@ -164,29 +165,32 @@ public class User extends ResponseAbstract {
             // If success
             data.put("is_success", true);
             data.put("message", "Sign up success.");
+            data.put("is_facebook_account",is_facebook_account);
+            data.put("balance", balance);
             this.setResponseInfo("res_signup", data);
             // Send email attach with confirmation code
-            try {
-                String confirmLink = "http://localhost:8080/SicbokServer/Portal";
-                confirmLink += "?type_of_request=confirm_sign_up";
-                confirmLink += "&email=" + email;
-                confirmLink += "&code=" + registerConfirmCode;
+            if (!is_facebook_account) {
+                try {
+                    String confirmLink = Utils.SERVER_URL;
+                    confirmLink += "?type_of_request=confirm_sign_up";
+                    confirmLink += "&email=" + email;
+                    confirmLink += "&code=" + registerConfirmCode;
 
-                String exEmailTitle = "Sicbo game!!! Sign up confirmation";
-                String exEmailContent = "<h1>Welcome to Sicbo game!!!</h1>";
-                exEmailContent += "<p>Let's play game to change the world.</p>";
-                exEmailContent += "<p>PLease click link below to finsh register proccess.</p>";
-                exEmailContent += "<p><a href=\"" + confirmLink + "\">";
-                exEmailContent += confirmLink + "</a></p>";
-                exEmailContent += "<p>Thank you very much!</p>";
+                    String exEmailTitle = "Sicbo game!!! Sign up confirmation";
+                    String exEmailContent = "<h1>Welcome to Sicbo game!!!</h1>";
+                    exEmailContent += "<p>Let's play game to change the world.</p>";
+                    exEmailContent += "<p>PLease click link below to finsh register proccess.</p>";
+                    exEmailContent += "<p><a href=\"" + confirmLink + "\">";
+                    exEmailContent += confirmLink + "</a></p>";
+                    exEmailContent += "<p>Thank you very much!</p>";
 
-                SendMail sendMail = new SendMail(email);
-                sendMail.sendMail(exEmailTitle, exEmailContent);
+                    SendMail sendMail = new SendMail(email);
+                    sendMail.sendMail(exEmailTitle, exEmailContent);
 
-            } catch (MessagingException ex) {
-                Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (MessagingException ex) {
+                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-
         } else {
             // If fail
             data.put("is_success", false);
@@ -234,7 +238,7 @@ public class User extends ResponseAbstract {
         }
     }
 
-    private User signInHandle(ResultSet rs) throws SQLException {
+    private User signInHandle(ResultSet rs, boolean isFacebookAccount) throws SQLException {
         User u = new User();
         JSONObject data = new JSONObject();
         int count = 0;
@@ -265,7 +269,7 @@ public class User extends ResponseAbstract {
             data.put("date_create", u.getDateCreate());
             data.put("balance", u.getBalance());
             data.put("bitcoin_id", u.getBitcoinId());
-
+            data.put("is_facebook_account", isFacebookAccount);
             u.setResponseInfo("res_sign_in", data);
 
             return u;
@@ -283,7 +287,7 @@ public class User extends ResponseAbstract {
                 new String[]{"username_to_check", "pass_to_check"},
                 new Object[]{username, password});
 
-        return signInHandle(rs);
+        return signInHandle(rs, false);
     }
 
     // Forgot password

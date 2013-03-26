@@ -39,6 +39,7 @@ public class BetHistory {
                 new Object[]{userId});
         if (!rs.next()) {
             System.out.println("No records found");
+            return null;
         } else {
             result = new ArrayList<BetHistory>();
 
