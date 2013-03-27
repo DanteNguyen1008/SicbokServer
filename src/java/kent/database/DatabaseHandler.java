@@ -36,6 +36,12 @@ public class DatabaseHandler {
     private Connection connection = null;//The database connection.
     private String strError;
     private CallableStatement proc;
+    /*
+    private String strHostURL = "mysql-sicbogame.jelastic.servint.net";
+    private String strUsername = "kibowvn";
+    private String strPassword = "nJUGP3yULEqmVJeQ";
+    private String strDatabaseName = "kb_sicbok";
+    */
     private String strHostURL = "localhost:3306";
     private String strUsername = "root";
     private String strPassword = "";

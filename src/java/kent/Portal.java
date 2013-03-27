@@ -228,6 +228,87 @@ public class Portal extends HttpServlet {
             }
         }
 
+        if ("view_bet_history_next".equals(typeOfRequest)) {
+            User currentUser = (User) session.getAttribute("user");
+
+            if (session != null && currentUser != null) {
+                ArrayList<BetHistory> betHistoryList = (ArrayList<BetHistory>) session.getAttribute("historyList");
+
+                long lastDate = Long.parseLong(request.getParameter("last_date"));
+
+                int j = 0;
+                ArrayList<BetHistory> returnHistoryList = new ArrayList<BetHistory>();
+                historyLoop:
+                {
+                    for (int i = 0; i < betHistoryList.size(); i++) {
+                        if (Long.parseLong(betHistoryList.get(i).getBetDate()) < lastDate) {
+                            returnHistoryList.add(betHistoryList.get(i));
+                            j++;
+                        }
+
+                        if (j == 20) {
+                            break historyLoop;
+                        }
+                    }
+                }
+                JSONObject data = new JSONObject();
+                User u = new User();
+                if (returnHistoryList.size() > 0) {
+
+                    data.put("num_of_item", returnHistoryList.size());
+                    BetHistoryDetail betHistoryDetail = new BetHistoryDetail();
+                    for (int i = 0; i < returnHistoryList.size(); i++) {
+                        JSONObject historyjs = new JSONObject();
+                        boolean iswin = (returnHistoryList.get(i).getIsWin() == 1) ? true : false;
+
+                        historyjs.put("dices", returnHistoryList.get(i).getDices());
+                        historyjs.put("iswin", iswin);
+                        historyjs.put("betdate", returnHistoryList.get(i).getBetDate());
+                        historyjs.put("balance", returnHistoryList.get(i).getBalance());
+
+                        // Get history detail
+                        ArrayList<BetHistoryDetail> betHistoryDetailList = null;
+                        try {
+                            betHistoryDetailList = betHistoryDetail.getHistoryDetailList(
+                                    returnHistoryList.get(i).getBetHistoryId());
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        String betSpots = "";
+                        String betSpotsAmount = "";
+                        String betSpotsWin = "";
+                        String betSpotsWinAmount = "";
+                        for (int ihd = 0; ihd < betHistoryDetailList.size(); ihd++) {
+                            betSpots = betSpots + "|" + betHistoryDetailList.get(ihd).getBetSpotId();
+                            betSpotsAmount = betSpotsAmount + "|" + betHistoryDetailList.get(ihd).getAmount();
+                            // If win
+                            if ((int) betHistoryDetailList.get(ihd).getIsWin() == 1) {
+                                betSpotsWin = betSpotsWin + "|" + betHistoryDetailList.get(ihd).getBetSpotId();
+                                betSpotsWinAmount = betSpotsWinAmount + "|" + betHistoryDetailList.get(ihd).getAmount();
+                            }
+                        }
+                        historyjs.put("bet_spots", betSpots);
+                        historyjs.put("bet_spots_amount", betSpotsAmount);
+                        historyjs.put("bet_spots_win", betSpotsWin);
+                        historyjs.put("bet_spots_win_amount", betSpotsWinAmount);
+
+                        data.put(i + "", historyjs);
+                    }
+                } else {
+                    data.put("num_of_item", 0);
+                }
+
+                u.setResponseInfo("res_view_history_next", data);
+                jsonResponse = u.getResponseJson();
+            } else {
+                JSONObject data = new JSONObject();
+                User u = new User();
+                data.put("message", "You are not Sign yet!");
+                u.setResponseInfo("res_change_password", data);
+                jsonResponse = u.getResponseJson();
+            }
+        }
+
 
         if ("view_bet_history".equals(typeOfRequest)) {
 
@@ -243,25 +324,42 @@ public class Portal extends HttpServlet {
                 } catch (SQLException ex) {
                     Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
+                int j = 0;
+                ArrayList<BetHistory> returnHistoryList = new ArrayList<BetHistory>();
+                historyLoop:
+                {
+                    for (int i = 0; i < betHistoryList.size(); i++) {
+
+                        returnHistoryList.add(betHistoryList.get(i));
+                        j++;
+
+
+                        if (j == 20) {
+                            break historyLoop;
+                        }
+                    }
+                }
                 JSONObject data = new JSONObject();
                 User u = new User();
-                if (betHistoryList != null) {
-                    data.put("num_of_item", betHistoryList.size());
+                if (returnHistoryList != null) {
+                    session.setAttribute("historyList", returnHistoryList);
+                    data.put("num_of_item", returnHistoryList.size());
 
-                    for (int i = 0; i < betHistoryList.size(); i++) {
+                    for (int i = 0; i < returnHistoryList.size(); i++) {
                         JSONObject historyjs = new JSONObject();
-                        boolean iswin = (betHistoryList.get(i).getIsWin() == 1) ? true : false;
+                        boolean iswin = (returnHistoryList.get(i).getIsWin() == 1) ? true : false;
 
-                        historyjs.put("dices", betHistoryList.get(i).getDices());
+                        historyjs.put("dices", returnHistoryList.get(i).getDices());
                         historyjs.put("iswin", iswin);
-                        historyjs.put("betdate", betHistoryList.get(i).getBetDate());
-                        historyjs.put("balance", betHistoryList.get(i).getBalance());
+                        historyjs.put("betdate", returnHistoryList.get(i).getBetDate());
+                        historyjs.put("balance", returnHistoryList.get(i).getBalance());
 
                         // Get history detail
                         ArrayList<BetHistoryDetail> betHistoryDetailList = null;
                         try {
                             betHistoryDetailList = betHistoryDetail.getHistoryDetailList(
-                                    betHistoryList.get(i).getBetHistoryId());
+                                    returnHistoryList.get(i).getBetHistoryId());
                         } catch (SQLException ex) {
                             Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
                         }

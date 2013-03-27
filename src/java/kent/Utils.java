@@ -12,7 +12,7 @@ import java.util.Random;
  */
 public class Utils {
     
-    public static final String SERVER_URL = "http://10.0.1.15:8084/WEB-INF/Portal"; 
+    public static final String SERVER_URL = "http://sicbogame.jelastic.servint.net/sicbogame/Portal"; 
     public static final float DEFAULT_BALANCE = 1000;
 
     public static String randomString(int length) {
