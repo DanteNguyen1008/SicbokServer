@@ -38,7 +38,7 @@ public class User extends ResponseAbstract {
 
     //<editor-fold defaultstate="collapsed" desc="Constructor">
     public User() {
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.getInstance();
     }
 
     public User(
@@ -62,10 +62,67 @@ public class User extends ResponseAbstract {
         this.bitcoinId = bitcoinId;
         this.registerConfirmCode = registerConfirmCode;
         this.isActive = isActive;
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.getInstance();
     }
     //</editor-fold>
 
+    public enum UserError {
+
+        FBEMAIL_EXIST, FBEMAIL_NOT_EXIST, FBEMAIL_INVALID
+    }
+
+    /*
+     For facebook
+     */
+    public void facebookResponseRegister(String email) {
+        JSONObject data = new JSONObject();
+        data.put("is_success", false);
+        data.put("is_allow_facebook_register", true);
+        data.put("email", email);
+        data.put("message", "This facebook account is not exist on system");
+        this.setResponseInfo("res_sign_in", data);
+    }
+
+    public void facebookSignInInvalid() {
+        JSONObject data = new JSONObject();
+        data.put("is_success", false);
+        data.put("is_allow_facebook_register", false);
+
+        data.put("message", "This facebook account is invalid!");
+        this.setResponseInfo("res_sign_in", data);
+    }
+
+    public User facebookSignin(String email) throws SQLException {
+        ResultSet rs = DatabaseHandler.getInstance().executeQuery("USER_SELECT_FACEBOOK_LOGIN",
+                new String[]{"email"},
+                new Object[]{email});
+
+        return signInHandle(rs, true);
+    }
+
+    public UserError checkEmailFacebookExist(String email) throws SQLException {
+        ResultSet rs = DatabaseHandler.getInstance().executeQuery("USER_CHECK_FB_EMAIL_EXIST",
+                new String[]{"email"},
+                new Object[]{email});
+        if (rs.next()) {
+            if (rs.getInt("result") == 1) {
+                //Facebook email is not exist => Register
+                return UserError.FBEMAIL_NOT_EXIST;
+            } else if (rs.getInt("result") == 2) {
+                //This email is not a facebook account ->Invalid
+                return UserError.FBEMAIL_INVALID;
+            } else if (rs.getInt("result") == 3) {
+                //This email is exist => valid => Login
+                return UserError.FBEMAIL_EXIST;
+            }
+        }
+
+        return UserError.FBEMAIL_INVALID;
+    }
+
+    /*
+     End facebook implementation
+     */
     public JSONObject signUp(
             String username,
             String password,
@@ -75,14 +132,15 @@ public class User extends ResponseAbstract {
             float balance,
             String bitcoinId,
             String registerConfirmCode,
-            boolean isActive) {
+            boolean isActive,
+            boolean is_facebook_account) {
 
         JSONObject data = new JSONObject();
 
         // Check username Exists
         if (this.isExists(username, email)) {
             data.put("is_success", false);
-            data.put("message", "Username already exists.");
+            data.put("message", "Username or email already exists.");
             this.setResponseInfo("res_signup", data);
             return this.getResponseJson();
         }
@@ -91,13 +149,14 @@ public class User extends ResponseAbstract {
          * Execute SQL
          */
         int rowAffected = 1;
+        isActive = is_facebook_account;
         try {
             rowAffected = this.databaseHandler.executeSQL(
                     "USER_INSERT",
                     new String[]{"inUsername", "inPassword", "inEmail", "inFullname", "inDateCreate",
-                        "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive"},
+                "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive", "is_facebook_connected"},
                     new Object[]{username, password, email, fullname, dateCreate,
-                        balance, bitcoinId, registerConfirmCode, isActive});
+                balance, bitcoinId, registerConfirmCode, isActive, is_facebook_account});
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -106,29 +165,32 @@ public class User extends ResponseAbstract {
             // If success
             data.put("is_success", true);
             data.put("message", "Sign up success.");
+            data.put("is_facebook_account",is_facebook_account);
+            data.put("balance", balance);
             this.setResponseInfo("res_signup", data);
             // Send email attach with confirmation code
-            try {
-                String confirmLink = "http://localhost:8080/SicbokServer/Portal";
-                confirmLink += "?type_of_request=confirm_sign_up";
-                confirmLink += "&email=" + email;
-                confirmLink += "&code=" + registerConfirmCode;
+            if (!is_facebook_account) {
+                try {
+                    String confirmLink = Utils.SERVER_URL;
+                    confirmLink += "?type_of_request=confirm_sign_up";
+                    confirmLink += "&email=" + email;
+                    confirmLink += "&code=" + registerConfirmCode;
 
-                String exEmailTitle = "Sicbo game!!! Sign up confirmation";
-                String exEmailContent = "<h1>Welcome to Sicbo game!!!</h1>";
-                exEmailContent += "<p>Let's play game to change the world.</p>";
-                exEmailContent += "<p>PLease click link below to finsh register proccess.</p>";
-                exEmailContent += "<p><a href=\"" + confirmLink + "\">";
-                exEmailContent += confirmLink + "</a></p>";
-                exEmailContent += "<p>Thank you very much!</p>";
+                    String exEmailTitle = "Sicbo game!!! Sign up confirmation";
+                    String exEmailContent = "<h1>Welcome to Sicbo game!!!</h1>";
+                    exEmailContent += "<p>Let's play game to change the world.</p>";
+                    exEmailContent += "<p>PLease click link below to finsh register proccess.</p>";
+                    exEmailContent += "<p><a href=\"" + confirmLink + "\">";
+                    exEmailContent += confirmLink + "</a></p>";
+                    exEmailContent += "<p>Thank you very much!</p>";
 
-                SendMail sendMail = new SendMail(email);
-                sendMail.sendMail(exEmailTitle, exEmailContent);
+                    SendMail sendMail = new SendMail(email);
+                    sendMail.sendMail(exEmailTitle, exEmailContent);
 
-            } catch (MessagingException ex) {
-                Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (MessagingException ex) {
+                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-
         } else {
             // If fail
             data.put("is_success", false);
@@ -176,16 +238,9 @@ public class User extends ResponseAbstract {
         }
     }
 
-    public User signIn(String username, String password) throws SQLException {
-
+    private User signInHandle(ResultSet rs, boolean isFacebookAccount) throws SQLException {
         User u = new User();
-
         JSONObject data = new JSONObject();
-        ResultSet rs = this.databaseHandler.executeQuery(
-                "USER_SELECT_SIGN_IN",
-                new String[]{"username_to_check", "pass_to_check"},
-                new Object[]{username, password});
-
         int count = 0;
         rs.next();
         count = rs.getRow();
@@ -214,7 +269,7 @@ public class User extends ResponseAbstract {
             data.put("date_create", u.getDateCreate());
             data.put("balance", u.getBalance());
             data.put("bitcoin_id", u.getBitcoinId());
-
+            data.put("is_facebook_account", isFacebookAccount);
             u.setResponseInfo("res_sign_in", data);
 
             return u;
@@ -224,6 +279,15 @@ public class User extends ResponseAbstract {
             u.setResponseInfo("res_sign_in", data);
             return u;
         }
+    }
+
+    public User signIn(String username, String password) throws SQLException {
+        ResultSet rs = this.databaseHandler.executeQuery(
+                "USER_SELECT_SIGN_IN",
+                new String[]{"username_to_check", "pass_to_check"},
+                new Object[]{username, password});
+
+        return signInHandle(rs, false);
     }
 
     // Forgot password
@@ -267,13 +331,12 @@ public class User extends ResponseAbstract {
                 } catch (MessagingException ex) {
                     Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
                 data.put("is_success", true);
                 data.put("message", "Email for reset password has been sent to your email.");
                 this.setResponseInfo("res_forgot_password", data);
                 return this.getResponseJson();
-            }
-            else {
+            } else {
                 data.put("is_success", false);
                 data.put("message", "Some database error occurred..");
                 this.setResponseInfo("res_forgot_password", data);
@@ -443,7 +506,7 @@ public class User extends ResponseAbstract {
             return true;
         }
     }
-    
+
     // Check validation of Forgot password Confirm Code
     public boolean isValidConfirmForgotPass(String email, String confirmCode) {
 

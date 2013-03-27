@@ -26,7 +26,7 @@ public class BetHistory {
     private DatabaseHandler databaseHandler;
 
     public BetHistory() {
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.getInstance();
     }
 
     public ArrayList<BetHistory> getBetHistoryList(int userId) throws SQLException {
@@ -39,6 +39,7 @@ public class BetHistory {
                 new Object[]{userId});
         if (!rs.next()) {
             System.out.println("No records found");
+            return null;
         } else {
             result = new ArrayList<BetHistory>();
 

@@ -24,7 +24,7 @@ public class Pattern {
     private DatabaseHandler databaseHandler;
 
     public Pattern() {
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.getInstance();
     }
     
     public Pattern getPattern(int patternId) throws SQLException {

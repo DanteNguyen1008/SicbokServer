@@ -26,7 +26,7 @@ public class BetHistoryDetail {
     private DatabaseHandler databaseHandler;
 
     public BetHistoryDetail() {
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.getInstance();
     }
 
     public ArrayList<BetHistoryDetail> getHistoryDetailList(int betHistoryId) throws SQLException {

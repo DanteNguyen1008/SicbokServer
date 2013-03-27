@@ -20,7 +20,7 @@ public class Spots {
     private DatabaseHandler databaseHandler;
 
     public Spots() {
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.getInstance();
     }
     
     public Spots getSpot(int spotId) throws SQLException {
