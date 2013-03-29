@@ -63,7 +63,7 @@ public class BetHistoryDetail {
             int betSpotId,
             int isWin,
             float amount,
-            float balance) {
+            double balance) {
         /*
          * Execute SQL
          */

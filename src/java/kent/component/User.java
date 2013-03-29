@@ -29,7 +29,7 @@ public class User extends ResponseAbstract {
     private String email;
     private String fullname;
     private String dateCreate;
-    private float balance;
+    private double balance;
     private String bitcoinId;
     private String registerConfirmCode;
     private String forgotPassConfirmCode;
@@ -154,9 +154,9 @@ public class User extends ResponseAbstract {
             rowAffected = this.databaseHandler.executeSQL(
                     "USER_INSERT",
                     new String[]{"inUsername", "inPassword", "inEmail", "inFullname", "inDateCreate",
-                "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive", "is_facebook_connected"},
+                        "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive", "is_facebook_connected"},
                     new Object[]{username, password, email, fullname, dateCreate,
-                balance, bitcoinId, registerConfirmCode, isActive, is_facebook_account});
+                        balance, bitcoinId, registerConfirmCode, isActive, is_facebook_account});
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -165,7 +165,7 @@ public class User extends ResponseAbstract {
             // If success
             data.put("is_success", true);
             data.put("message", "Sign up success.");
-            data.put("is_facebook_account",is_facebook_account);
+            data.put("is_facebook_account", is_facebook_account);
             data.put("balance", balance);
             this.setResponseInfo("res_signup", data);
             // Send email attach with confirmation code
@@ -437,7 +437,7 @@ public class User extends ResponseAbstract {
         }
     }
 
-    public boolean updateBalance(float newBalance) {
+    public boolean updateBalance(double newBalance) {
         int affectedRow = 0;
         try {
             affectedRow = this.databaseHandler.executeSQL(
@@ -452,7 +452,18 @@ public class User extends ResponseAbstract {
             return true;
         }
         return false;
+    }
 
+    public double getCurrentBalance() throws SQLException {
+
+        ResultSet rs = this.databaseHandler.executeQuery(
+                "USER_SELECT_USER_BY_ID",
+                new String[]{"userId"},
+                new Object[]{this.getUserId()});
+
+        rs.next();
+        double currentBalance = rs.getDouble("balance");
+        return currentBalance;    
     }
 
     public boolean isExists(String username, String email) {
@@ -674,14 +685,14 @@ public class User extends ResponseAbstract {
     /**
      * @return the balance
      */
-    public float getBalance() {
+    public double getBalance() {
         return balance;
     }
 
     /**
      * @param balance the balance to set
      */
-    public void setBalance(float balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 

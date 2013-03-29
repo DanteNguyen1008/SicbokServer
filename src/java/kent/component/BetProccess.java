@@ -6,8 +6,6 @@ package kent.component;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import kent.database.DatabaseHandler;
 import org.json.simple.JSONObject;
 
@@ -22,7 +20,7 @@ public class BetProccess {
     Pattern ptn = null;
     Spots spot = null;
     BetHistory history = null;
-    private float currentBalance;
+    private double currentBalance;
     private float amountBet;
     private DatabaseHandler databaseHandler;
 
@@ -37,7 +35,7 @@ public class BetProccess {
 
     public JSONObject play(int[] spots, float[] amounts) throws SQLException {
 
-        this.currentBalance = this.user.getBalance();
+        this.currentBalance = this.user.getCurrentBalance();
         this.amountBet = 0;
 
         int numOfBet = spots.length;
@@ -47,7 +45,7 @@ public class BetProccess {
 
         // Check valid balance
         // If Balance is less than Bet amount. Cancel and return invalid message
-        if (this.user.getBalance() < totalAmount || totalAmount > 100) {
+        if (this.user.getCurrentBalance() < totalAmount || totalAmount > 100) {
 
             JSONObject data = new JSONObject();
             data.put("is_play_success", false);
@@ -87,7 +85,7 @@ public class BetProccess {
                 }
                 boolean resultIsWin = (isWin == 0) ? false : true;
                 // Get lastest balance
-                this.currentBalance = this.user.getBalance();
+                this.currentBalance = this.user.getCurrentBalance();
 
                 int insertedId = 0;
                     
@@ -140,7 +138,7 @@ public class BetProccess {
                     data.put("dice1", this.rng.getDice1());
                     data.put("dice2", this.rng.getDice2());
                     data.put("dice3", this.rng.getDice3());
-                    data.put("current_balance", this.user.getBalance());
+                    data.put("current_balance", this.user.getCurrentBalance());
                     data.put("totalbetamount", totalAmount);
                     data.put("totalwinamount", this.amountBet);
                     data.put("message", "Play successfully.");

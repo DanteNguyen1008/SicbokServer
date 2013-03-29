@@ -133,19 +133,13 @@ public class Portal extends HttpServlet {
         // FOrgot password
         if ("forgot_password".equals(typeOfRequest)) {
 
-            if (session == null) {
-                JSONObject data = new JSONObject();
-                User u = new User();
-                data.put("message", "You are not Sign yet!");
-                u.setResponseInfo("res_forgot_password", data);
-                jsonResponse = u.getResponseJson();
-            } else {
-                String email = request.getParameter("email");
 
-                User utemp = new User();
-                jsonResponse = utemp.forgotPassowrd(email);
+            String email = request.getParameter("email");
 
-            }
+            User utemp = new User();
+            jsonResponse = utemp.forgotPassowrd(email);
+
+
         }
 
         // Reset password after send forgot password request
@@ -175,7 +169,7 @@ public class Portal extends HttpServlet {
                 JSONObject data = new JSONObject();
                 User u = new User();
                 data.put("message", "You are not Sign yet!");
-                u.setResponseInfo("res_change_password", data);
+                u.setResponseInfo("res_session_expire", data);
                 jsonResponse = u.getResponseJson();
             }
         }
@@ -223,7 +217,7 @@ public class Portal extends HttpServlet {
                 JSONObject data = new JSONObject();
                 User u = new User();
                 data.put("message", "You are not Sign in yet!");
-                u.setResponseInfo("res_play_bet", data);
+                u.setResponseInfo("res_session_expire", data);
                 jsonResponse = u.getResponseJson();
             }
         }
@@ -304,7 +298,7 @@ public class Portal extends HttpServlet {
                 JSONObject data = new JSONObject();
                 User u = new User();
                 data.put("message", "You are not Sign yet!");
-                u.setResponseInfo("res_change_password", data);
+                u.setResponseInfo("res_session_expire", data);
                 jsonResponse = u.getResponseJson();
             }
         }
@@ -386,14 +380,14 @@ public class Portal extends HttpServlet {
                 } else {
                     data.put("num_of_item", 0);
                 }
-                u.setResponseInfo("res_view_history", data);
+                u.setResponseInfo("res_session_expire", data);
                 jsonResponse = u.getResponseJson();
 
             } else {
                 JSONObject data = new JSONObject();
                 User u = new User();
                 data.put("message", "You are not Sign yet!");
-                u.setResponseInfo("res_change_password", data);
+                u.setResponseInfo("res_session_expire", data);
                 jsonResponse = u.getResponseJson();
             }
 
