@@ -36,6 +36,12 @@ public class DatabaseHandler {
     private Connection connection = null;//The database connection.
     private String strError;
     private CallableStatement proc;
+    /*
+     private String strHostURL = "mysql-sicbogame.jelastic.servint.net";
+     private String strUsername = "kibowvn";
+     private String strPassword = "nJUGP3yULEqmVJeQ";
+     private String strDatabaseName = "kb_sicbok";
+     */
     private String strHostURL = "localhost:3306";
     private String strUsername = "root";
     private String strPassword = "";
@@ -114,7 +120,7 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return j;
     }
     //</editor-fold>
@@ -144,20 +150,24 @@ public class DatabaseHandler {
         ResultSet resultSet = null;
         try {
             String parameterCount = "";
-            for (int i = 0; i < parameterNames.length; i++) {
-                if (i == (parameterNames.length - 1)) {
-                    parameterCount += "?";
-                } else {
-                    parameterCount += "?,";
+            if (parameterNames != null) {
+                for (int i = 0; i < parameterNames.length; i++) {
+                    if (i == (parameterNames.length - 1)) {
+                        parameterCount += "?";
+                    } else {
+                        parameterCount += "?,";
+                    }
                 }
             }
+
             System.out.println(procedureName + " - " + parameterCount);
             this.proc = this.connection.prepareCall("{call " + procedureName + " (" + parameterCount + ")}");
             //Ex: this.proc = connection.prepareCall("{call SELECT_LOGIN('a1provip002@mail.com','123456')}");
-            for (int i = 0; i < parameterNames.length; i++) {
-                this.proc.setObject(i + 1, parameterValues[i]);
+            if (parameterValues != null) {
+                for (int i = 0; i < parameterNames.length; i++) {
+                    this.proc.setObject(i + 1, parameterValues[i]);
+                }
             }
-
             resultSet = this.proc.executeQuery();
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);

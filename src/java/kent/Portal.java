@@ -50,6 +50,8 @@ public class Portal extends HttpServlet {
         String typeOfRequest = "";
         typeOfRequest = request.getParameter("type_of_request");
         JSONObject jsonResponse = new JSONObject();
+        
+        
 
         // Sign up
         if ("sign_up".equals(typeOfRequest)) {
@@ -74,10 +76,9 @@ public class Portal extends HttpServlet {
 
             String email = request.getParameter("email");
             String code = request.getParameter("code");
-
-
             User u = new User();
             jsonResponse = u.signUpConfirm(email, code);
+            response.sendRedirect(Utils.SERVER + "/success/register-success.html");
         }
 
 
@@ -98,6 +99,7 @@ public class Portal extends HttpServlet {
             //System.out.println(u.getUserId() + "-------------");
             if (u.getUserId() != 0) {
                 session.setAttribute("user", u);
+                
             }
 
             jsonResponse = u.getResponseJson();
@@ -141,10 +143,8 @@ public class Portal extends HttpServlet {
                 jsonResponse = u.getResponseJson();
             } else {
                 String email = request.getParameter("email");
-
                 User utemp = new User();
                 jsonResponse = utemp.forgotPassowrd(email);
-
             }
         }
 
@@ -156,7 +156,7 @@ public class Portal extends HttpServlet {
 
             User utemp = new User();
             jsonResponse = utemp.resetPassowrd(email, code);
-
+            response.sendRedirect(Utils.SERVER + "/success/reset-password-success.html");
         }
 
         // Change password.
@@ -228,21 +228,21 @@ public class Portal extends HttpServlet {
             }
         }
 
-
         if ("view_bet_history".equals(typeOfRequest)) {
 
             User currentUser = (User) session.getAttribute("user");
-
             if (session != null && currentUser != null) {
 
                 BetHistory betHistory = new BetHistory();
                 BetHistoryDetail betHistoryDetail = new BetHistoryDetail();
                 ArrayList<BetHistory> betHistoryList = null;
                 try {
-                    betHistoryList = betHistory.getBetHistoryList(currentUser.getUserId());
+                    betHistoryList = betHistory.getBetHistoryList(currentUser.getUserId(), request.getParameter("last_date"), Utils.DEFAULT_HISTORY_LIMIT);
                 } catch (SQLException ex) {
                     Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
+
                 JSONObject data = new JSONObject();
                 User u = new User();
                 if (betHistoryList != null) {
@@ -300,9 +300,6 @@ public class Portal extends HttpServlet {
             }
 
         }
-
-
-
 
         /*
          * Response back result in JSON format
