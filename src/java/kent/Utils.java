@@ -12,13 +12,8 @@ import java.util.Random;
  */
 public class Utils {
     
-    //public static final String SERVER_URL = "http://sicbogame.jelastic.servint.net/sicbogame/Portal"; 
-    public static final String SERVER = "http://10.0.1.15:8084/WEB-INF/";
-    public static final String SERVER_URL = SERVER + "Portal"; 
-    public static final String SERVER_URL_ADMIN = SERVER + "ManagementHandler"; 
+    public static final String SERVER_URL = "http://sicbogame.jelastic.servint.net/sicbogame/Portal"; 
     public static final float DEFAULT_BALANCE = 1000;
-    public static final int DEFAULT_HISTORY_LIMIT = 20;
-    public static final String ADMIN_SESSION_NAME = "admin";
 
     public static String randomString(int length) {
         String chars = "0123456789!@#$%^&*()abcdefghygklmnouprstvwxyz";
