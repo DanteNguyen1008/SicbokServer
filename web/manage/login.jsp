@@ -13,7 +13,9 @@
         <title>Management login Page</title>
     </head>
     <body>
+
         <form action="<%=Utils.SERVER_URL_ADMIN%>" method="POST">
+ 
             User name : <input type="text" id="txtUsername" name="txtUsername" />
             Password : <input type="password" id="txtPassword" name="txtPassword" />
             <input type="submit" name="btnSubmit" id="btnSubmit" value="Login" />
