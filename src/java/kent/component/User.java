@@ -313,7 +313,7 @@ public class User extends ResponseAbstract {
 
             if (rowAffected > 0) {
                 try {
-                    String resetPassLink = "http://localhost:8080/SicbokServer/Portal";
+                    String resetPassLink = Utils.SERVER_URL;
                     resetPassLink += "?type_of_request=reset_password";
                     resetPassLink += "&email=" + email;
                     resetPassLink += "&code=" + tempForgotPassConfirmCode;
