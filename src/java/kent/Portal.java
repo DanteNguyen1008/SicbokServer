@@ -50,7 +50,7 @@ public class Portal extends HttpServlet {
         String typeOfRequest = "";
         typeOfRequest = request.getParameter("type_of_request");
         JSONObject jsonResponse = new JSONObject();
-
+           
         // Sign up
         if ("sign_up".equals(typeOfRequest)) {
 

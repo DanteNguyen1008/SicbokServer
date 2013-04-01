@@ -39,6 +39,14 @@
 
             } else {
                 out.print("You are not sign in yet");
+                %>
+                <form method="get" action="http://localhost:8080/SicbokServer/Portal">
+                    <input type="hidden" name="type_of_request" value="sign_in" />
+                    <input type="text" name="username" /><br />
+                    <input type="password" name="password" />
+                    <input type="submit" value=" Sign in " />
+                </form>
+                <%
             }
         %>
     </body>
