@@ -29,14 +29,14 @@ public class BetHistory {
         this.databaseHandler = DatabaseHandler.getInstance();
     }
 
-    public ArrayList<BetHistory> getBetHistoryList(int userId) throws SQLException {
+    public ArrayList<BetHistory> getBetHistoryList(int userId, String lastDate, int limit) throws SQLException {
         ArrayList<BetHistory> result = null;
         BetHistory temp = null;
 
         ResultSet rs = this.databaseHandler.executeQuery(
                 "BET_HISTORY_SELECT_BY_USER_ID",
-                new String[]{"userId"},
-                new Object[]{userId});
+                new String[]{"userId","lastDate","mlimit"},
+                new Object[]{userId,lastDate,limit});
         if (!rs.next()) {
             System.out.println("No records found");
             return null;
