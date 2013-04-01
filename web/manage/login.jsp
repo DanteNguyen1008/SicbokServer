@@ -13,9 +13,13 @@
         <title>Management login Page</title>
     </head>
     <body>
+<<<<<<< HEAD
 
         <form action="<%=Utils.SERVER_URL_ADMIN%>" method="POST">
  
+=======
+        <form action="<%= Utils.SERVER_URL_ADMIN%>" method="POST">
+>>>>>>> 8f167e65b0e52884ee8233a00da5286476541656
             User name : <input type="text" id="txtUsername" name="txtUsername" />
             Password : <input type="password" id="txtPassword" name="txtPassword" />
             <input type="submit" name="btnSubmit" id="btnSubmit" value="Login" />

@@ -51,6 +51,8 @@ public class Portal extends HttpServlet {
         typeOfRequest = request.getParameter("type_of_request");
         JSONObject jsonResponse = new JSONObject();
 
+
+
         // Sign up
         if ("sign_up".equals(typeOfRequest)) {
 
@@ -99,6 +101,7 @@ public class Portal extends HttpServlet {
 
             if (u.getUserId() != 0) {
                 session.setAttribute("user", u);
+
 
                 if (backurl != null) {
                     response.sendRedirect(backurl);
@@ -233,6 +236,8 @@ public class Portal extends HttpServlet {
             User currentUser = (User) session.getAttribute("user");
             if (session != null && currentUser != null) {
 
+
+
                 BetHistory betHistory = new BetHistory();
                 BetHistoryDetail betHistoryDetail = new BetHistoryDetail();
                 ArrayList<BetHistory> betHistoryList = null;
@@ -310,6 +315,8 @@ public class Portal extends HttpServlet {
 
             currentUser = (User) session.getAttribute("user");
             if (session != null && currentUser != null) {
+
+
 
                 if (currentUser.updateBitcoinId(bitcoinId)) {
                     response.sendRedirect(Utils.SERVER + "success/UpdateBitcoinAddressSuccessfully.jsp");
