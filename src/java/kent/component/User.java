@@ -313,7 +313,7 @@ public class User extends ResponseAbstract {
 
             if (rowAffected > 0) {
                 try {
-                    String resetPassLink = "http://localhost:8080/SicbokServer/Portal";
+                    String resetPassLink = Utils.SERVER_URL;
                     resetPassLink += "?type_of_request=reset_password";
                     resetPassLink += "&email=" + email;
                     resetPassLink += "&code=" + tempForgotPassConfirmCode;
@@ -449,6 +449,23 @@ public class User extends ResponseAbstract {
         }
         if (affectedRow > 0) {
             this.setBalance(newBalance);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean updateBitcoinId(String bitcoinId) {
+        int affectedRow = 0;
+        try {
+            affectedRow = this.databaseHandler.executeSQL(
+                    "USER_UPDATE_BITCOIN_ID",
+                    new String[]{"newBitcoinId", "userId"},
+                    new Object[]{bitcoinId, this.getUserId()});
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (affectedRow > 0) {
+            this.setBitcoinId(bitcoinId);
             return true;
         }
         return false;

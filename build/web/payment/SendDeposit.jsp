@@ -4,6 +4,7 @@
     Author     : Kent
 --%>
 
+<%@page import="kent.Utils"%>
 <%@page import="kent.component.User"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -19,14 +20,15 @@
             currentUser = (User) session.getAttribute("user");
             if (session != null && currentUser != null) {
         %>
-        Hello <b><% out.print(currentUser.getUsername());%></b><br />
+        Hello <b><% out.print(currentUser.getUsername());%></b>
+        --- <a href="<%=Utils.SERVER_URL%>?type_of_request=sign_out">Sign out</a><br />
         Your current balance is:<b> <% out.print(currentUser.getCurrentBalance());%> </b><br />
         <form name="" action="https://www.bitcoin247.com/en/HostedPayment" method="get">
             <%
                 String merchantPaymentId = kent.Hash.getHashSHA256(kent.Utils.randomString(5) + System.currentTimeMillis());
                 merchantPaymentId = merchantPaymentId.substring(5);
             %>
-            <input type="hidden" name="merchantid" value="11741" />
+            <input type="hidden" name="merchantid" value="<%= Utils.MERCHANT_ID %>" />
             <input type="hidden" name="businessnameid" value="2" />
             <input type="hidden" name="merchantpaymentid" value="<% out.print(merchantPaymentId);%>" />
             <input type="hidden" name="note" value="<% out.print(currentUser.getUserId());%>" />                        
@@ -37,10 +39,12 @@
         <%
 
 
-            } else {
-                out.print("You are not sign in yet");
+            } else {                
                 %>
-                <form method="get" action="http://localhost:8080/SicbokServer/Portal">
+                You are not sign in yet<br />
+                Please sign in first:
+                <form method="post" action="<%=Utils.SERVER_URL%>">
+                    <input type="hidden" name="backurl" value="<%=Utils.SERVER%>payment/SendDeposit.jsp" />
                     <input type="hidden" name="type_of_request" value="sign_in" />
                     <input type="text" name="username" /><br />
                     <input type="password" name="password" />
