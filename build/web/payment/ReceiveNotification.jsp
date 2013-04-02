@@ -28,11 +28,6 @@
             String Note = request.getParameter("Note");
             String TsCreate = request.getParameter("TsCreate");
 
-            //User u1 = new User();
-            //u1.setUserId(3);
-            //u1.updateBalance(Double.parseDouble(Bitcoin247PaymentId));
-
-            // Get payment detail
             //Bitcoin247PaymentId = "8027";
             String getDetailUrl = "https://www.bitcoin247.com/MerchantApi/v1/json/GetPaymentDetailsByBitcoin247Id";
             getDetailUrl += "?merchantid=11741&password=T@mH@i169";
@@ -41,9 +36,6 @@
 
             try {
 
-                //String temp = "{\"Bitcoin247PaymentId\":8027,\"MerchantPaymentId\":\"BF6AAA6703278A81DA973CE4FC28373BBA505EF9FC5CBB0D0A88F9CA5E4\",\"ExpectedAmount\":0.01000000,\"TotalAmountReceived\":0.01000000,\"PaymentStatus\":2,\"BitcoinReceiveAddress\":\"17d9KuKhWBSvw96s8hmvhKxxtdrokoGG2i\",\"Note\":\"3\",\"TsCreate\":\"/Date(1364547315170)/\",\"MerchantData\":[],\"ErrorCode\":0,\"Message\":\"OK\"}";
-                //JSONObject jsonResult = new JSONObject(temp);
-                
                 JSONObject jsonResult = JsonReader.readJsonFromUrl(getDetailUrl);
                 //out.print(jsonResult.toString());
                 int re_ErrorCode = jsonResult.getInt("ErrorCode");
@@ -66,10 +58,15 @@
                 User u = new User();
                 u.setUserId(userId);
                 double currentBalance = u.getCurrentBalance();
-                double newBalance = currentBalance + totalDepositUSD;
+                double newBalance = 0;
+                if (u.isIsTrial()) {
+                    newBalance = totalDepositUSD;
+                } else {
+                    newBalance = currentBalance + totalDepositUSD;
+                }
                 // Update user balance
                 u.updateBalance(newBalance);
-                
+
                 // Insert payment history
                 int insertedId = DatabaseHandler.getInstance().executeSQLAndGetId(
                         "kb_user_payment",
@@ -77,7 +74,7 @@
                         "USER_PAYMENT_INSERT",
                         new String[]{"userId", "typeOfPayment", "dateOfPayment", "balanceBefore", "balanceAfter"},
                         new Object[]{userId, 1, System.currentTimeMillis() / 1000, currentBalance, newBalance});
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

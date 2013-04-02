@@ -34,6 +34,8 @@ public class User extends ResponseAbstract {
     private String registerConfirmCode;
     private String forgotPassConfirmCode;
     private boolean isActive;
+    private boolean isTrial;
+    private boolean isLock;
     private DatabaseHandler databaseHandler;
 
     //<editor-fold defaultstate="collapsed" desc="Constructor">
@@ -66,7 +68,7 @@ public class User extends ResponseAbstract {
     }
     //</editor-fold>
 
-    public enum UserError {
+        public enum UserError {
 
         FBEMAIL_EXIST, FBEMAIL_NOT_EXIST, FBEMAIL_INVALID
     }
@@ -258,7 +260,21 @@ public class User extends ResponseAbstract {
             u.setBitcoinId(rs.getString("bitcoin_id"));
             u.setRegisterConfirmCode(rs.getString("register_confirm_code"));
             u.setForgotPassConfirmCode(rs.getString("forgot_pass_confirm_code"));
-            u.setIsActive(true);
+            if (rs.getInt("is_active") == 1) {
+                u.setIsActive(true);
+            } else {
+                u.setIsActive(false);
+            }
+            if (rs.getInt("is_trial") == 1) {
+                u.setIsTrial(true);
+            } else {
+                u.setIsTrial(false);
+            }
+            if (rs.getInt("is_lock") == 1) {
+                u.setIsLock(true);
+            } else {
+                u.setIsLock(false);
+            }
 
             data.put("is_success", true);
             data.put("message", "Sign in successfully.");
@@ -481,6 +497,29 @@ public class User extends ResponseAbstract {
         rs.next();
         double currentBalance = rs.getDouble("balance");
         return currentBalance;    
+    }
+    
+    public static User getUserById(int userId) throws SQLException {
+
+        ResultSet rs = DatabaseHandler.getInstance().executeQuery(
+                "USER_SELECT_USER_BY_ID",
+                new String[]{"userId"},
+                new Object[]{userId});
+
+        rs.next();
+        User u = new User();
+        
+        u.setUserId(rs.getInt("user_id"));
+        u.setUsername(rs.getString("username"));
+        u.setEmail(rs.getString("email"));
+        u.setDateCreate(rs.getString("date_create"));
+        u.setBalance(rs.getDouble("balance"));
+        u.setBitcoinId(rs.getString("bitcoin_id"));
+        u.setIsActive(rs.getBoolean("is_active"));
+        u.setIsTrial(rs.getBoolean("is_trial"));
+        u.setIsLock(rs.getBoolean("is_lock"));
+        
+        return u;    
     }
 
     public boolean isExists(String username, String email) {
@@ -767,6 +806,34 @@ public class User extends ResponseAbstract {
      */
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
+    }
+    
+    /**
+     * @return the isTrial
+     */
+    public boolean isIsTrial() {
+        return isTrial;
+    }
+
+    /**
+     * @param isTrial the isTrial to set
+     */
+    public void setIsTrial(boolean isTrial) {
+        this.isTrial = isTrial;
+    }
+
+    /**
+     * @return the isLock
+     */
+    public boolean isIsLock() {
+        return isLock;
+    }
+
+    /**
+     * @param isLock the isLock to set
+     */
+    public void setIsLock(boolean isLock) {
+        this.isLock = isLock;
     }
     //</editor-fold>
 }

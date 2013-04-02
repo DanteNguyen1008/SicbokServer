@@ -14,7 +14,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import kent.component.Management;
+import kent.component.User;
+import kent.database.DatabaseHandler;
 
 /**
  *
@@ -38,6 +41,7 @@ public class ManagementHandler extends HttpServlet {
 
         String typeOfRequest = "";
         typeOfRequest = request.getParameter("request_name");
+        HttpSession session = request.getSession(true);
         /**
          * Admin login
          */
@@ -65,12 +69,62 @@ public class ManagementHandler extends HttpServlet {
          * De-Active User
          */
         if (typeOfRequest.equals("deactive_user")) {
+
+            Management admin = null;
+            if (session.getAttribute(Utils.ADMIN_SESSION_NAME) == null) {
+                response.setStatus(response.SC_MOVED_TEMPORARILY);
+                response.setHeader("Location", Utils.SERVER + "manage/login.jsp");
+            } else {
+                admin = (Management) session.getAttribute(Utils.ADMIN_SESSION_NAME);
+            }
+            if (admin != null) {
+                int userId = Integer.parseInt(request.getParameter("user_id"));
+                int affectedRow = 0;
+                try {
+                    affectedRow = DatabaseHandler.getInstance().executeSQL(
+                            "USER_UPDATE_DEACTIVE",
+                            new String[]{"userId"},
+                            new Object[]{userId});
+                } catch (SQLException ex) {
+                    Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (affectedRow > 0) {
+                    
+                    System.out.println("Deactive successfully: " + userId);
+                }
+                response.sendRedirect(Utils.SERVER + "manage/user-management.jsp");
+            }
         }
 
         /**
          * Active User
          */
         if (typeOfRequest.equals("active_user")) {
+            
+            Management admin = null;
+            if (session.getAttribute(Utils.ADMIN_SESSION_NAME) == null) {
+                response.setStatus(response.SC_MOVED_TEMPORARILY);
+                response.setHeader("Location", Utils.SERVER + "manage/login.jsp");
+            } else {
+                admin = (Management) session.getAttribute(Utils.ADMIN_SESSION_NAME);
+            }
+            if (admin != null) {
+                int userId = Integer.parseInt(request.getParameter("user_id"));
+                int affectedRow = 0;
+                try {
+                    affectedRow = DatabaseHandler.getInstance().executeSQL(
+                            "USER_UPDATE_ACTIVE",
+                            new String[]{"userId"},
+                            new Object[]{userId});
+                } catch (SQLException ex) {
+                    Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (affectedRow > 0) {
+                    
+                    System.out.println("Active successfully: " + userId);
+                }
+                response.sendRedirect(Utils.SERVER + "manage/user-management.jsp");
+            }
         }
 
         /**
@@ -87,36 +141,31 @@ public class ManagementHandler extends HttpServlet {
             deleteUser(false, request, response);
         }
     }
-    
-    private void deleteUser(boolean isDelete, HttpServletRequest request, HttpServletResponse response) throws IOException
-    {
-         if (request.getParameter("user_id") != null) {
-                Management admin = Management.getManagementInstanceFromSession(request);
-                if (admin != null) {
-                    boolean result = false;
-                    try {
-                        result = admin.DeleteUser(isDelete, Integer.parseInt(request.getParameter("user_id")));
-                    } catch (SQLException ex) {
-                        Logger.getLogger(ManagementHandler.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (Exception ex) {
-                        Logger.getLogger(ManagementHandler.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                    if(result)
-                    {
-                        reloadUserManagmentPage(response, "?error=Delete user suscces");
-                    }else
-                    {
-                        reloadUserManagmentPage(response, "?error=Delete user Fail");
-                    }
+
+    private void deleteUser(boolean isDelete, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (request.getParameter("user_id") != null) {
+            Management admin = Management.getManagementInstanceFromSession(request);
+            if (admin != null) {
+                boolean result = false;
+                try {
+                    result = admin.DeleteUser(isDelete, Integer.parseInt(request.getParameter("user_id")));
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManagementHandler.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (Exception ex) {
+                    Logger.getLogger(ManagementHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                else{
-                    backLoginPage(response);
+
+                if (result) {
+                    reloadUserManagmentPage(response, "?error=Delete user suscces");
+                } else {
+                    reloadUserManagmentPage(response, "?error=Delete user Fail");
                 }
-            }else
-            {
+            } else {
                 backLoginPage(response);
             }
+        } else {
+            backLoginPage(response);
+        }
     }
 
     private void reloadUserManagmentPage(HttpServletResponse response, String arg) throws IOException {

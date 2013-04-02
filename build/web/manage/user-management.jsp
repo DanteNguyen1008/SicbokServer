@@ -6,15 +6,7 @@
 <%@page import="java.sql.ResultSet"%>
 <%@page import="kent.component.Management"%>
 <%@page import="kent.Utils"%>
-<%
-    Management admin = null;
-    if (session.getAttribute(Utils.ADMIN_SESSION_NAME) == null) {
-        response.setStatus(response.SC_MOVED_TEMPORARILY);
-        response.setHeader("Location", Utils.SERVER + "manage/login.jsp");
-    } else {
-        admin = (Management) session.getAttribute(Utils.ADMIN_SESSION_NAME);
-    }
-%>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -23,6 +15,16 @@
         <title>User management page</title>
     </head>
     <body>
+        <%
+            Management admin = null;
+            if (session.getAttribute(Utils.ADMIN_SESSION_NAME) == null) {
+                response.setStatus(response.SC_MOVED_TEMPORARILY);
+                response.setHeader("Location", Utils.SERVER + "manage/login.jsp");
+            } else {
+                admin = (Management) session.getAttribute(Utils.ADMIN_SESSION_NAME);
+            }
+        %>
+        
         <%
             if (admin != null) {
         %>
@@ -46,24 +48,25 @@
                 <td><%=rs.getString("bitcoin_id")%></td>
                 <td>
                     <%
-                        if (rs.getBoolean("is_active")) {
+                        if (rs.getBoolean("is_lock")) {
                             out.println("<a href='" + Utils.SERVER_URL_ADMIN
                                     + "?request_name=deactive_user&user_id="
-                                    + rs.getInt("user_id") + "'>Deactive</a>");
+                                    + rs.getInt("user_id") + "'>Unlock</a>" );
                         } else {
                             out.println("<a href='" + Utils.SERVER_URL_ADMIN
                                     + "?request_name=active_user&user_id="
-                                    + rs.getInt("user_id") + "'>Active</a>");
+                                    + rs.getInt("user_id") + "'>Lock</a>" );
                         }
                     %>
                 </td>
+                <!--
                 <td>
                     <%
 
-                        if (rs.getBoolean("delete_flag")) {
+                        if (rs.getInt("is_lock") == 0) {
                             out.println("<a href='" + Utils.SERVER_URL_ADMIN
                                     + "?request_name=enable_user&user_id="
-                                    + rs.getInt("user_id") + "'>Enable</a>");
+                                    + rs.getInt("user_id") + "'>Enable</a>" + rs.getInt("is_lock") + "a");
                         } else {
                             out.println("<a href='" + Utils.SERVER_URL_ADMIN
                                     + "?request_name=delete_user&user_id="
@@ -71,6 +74,7 @@
                         }
                     %>
                 </td>
+                -->
             </tr>
             <%
                 }

@@ -46,15 +46,13 @@
                 System.out.println("Amount withdrawal is not an Double");
             }
 
-            if (amountWithdraw > 0.0 || amountWithdraw <= currentUser.getCurrentBalance()) {
+            if (amountWithdraw > 0.0 || amountWithdraw <= currentUser.getCurrentBalance()) {                
                 // Amount valid. Send preparation withdrawal.
                 String getDetailUrl = "https://www.bitcoin247.com/MerchantApi/v1/json/PrepareSendBitcoinsTransaction";
                 getDetailUrl += "?merchantid=" + Utils.MERCHANT_ID;
                 getDetailUrl += "&password=" + Utils.MERCHANT_PASS;
                 getDetailUrl += "&amount=" + amountWithdraw;
                 getDetailUrl += "&bitcoinaddress=" + currentUser.getBitcoinId();
-
-                
 
                 try {
                     
@@ -72,7 +70,7 @@
                     double mtGoxReturnSellValue = mtGoxReturnSell.getDouble("value");
 
                     double totalWithdrawBitcoin = amountWithdraw / mtGoxReturnSellValue;
-                    out.print("---");    
+                    
                     // Execute Withdraw
                     String ExecuteWithdraw = "https://www.bitcoin247.com/MerchantApi/v1/json/ExecuteSendBitcoinsTransaction";
                     ExecuteWithdraw += "?merchantid=" + Utils.MERCHANT_ID;

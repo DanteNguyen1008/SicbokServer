@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 01, 2013 at 11:00 AM
+-- Generation Time: Apr 02, 2013 at 05:04 AM
 -- Server version: 5.5.24-log
 -- PHP Version: 5.4.3
 
@@ -230,7 +230,8 @@ BEGIN
 	SELECT * FROM kb_user
         WHERE `username` = username_to_check
         AND `password` = MD5(pass_to_check)
-        AND `is_active` = 1;
+        AND `is_active` = 1
+        AND `is_lock` = 0;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_SELECT_USER_BY_ID`(IN `uesrId` INT(11))
@@ -573,6 +574,8 @@ CREATE TABLE IF NOT EXISTS `kb_user` (
   `forgot_pass_confirm_code` varchar(255) DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '0',
   `is_facebook_connected` tinyint(1) NOT NULL DEFAULT '0',
+  `is_trial` tinyint(1) NOT NULL DEFAULT '1',
+  `is_lock` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
@@ -580,19 +583,19 @@ CREATE TABLE IF NOT EXISTS `kb_user` (
 -- Dumping data for table `kb_user`
 --
 
-INSERT INTO `kb_user` (`user_id`, `username`, `password`, `email`, `fullname`, `date_create`, `balance`, `bitcoin_id`, `register_confirm_code`, `forgot_pass_confirm_code`, `is_active`, `is_facebook_connected`) VALUES
-(1, 'vuongngocnam', '4e7e9270dc88cbd961ff5e12bad98fab', 'vuongngocnam@gmail.com', 'Kent Vuong', '1357872252', '1000', NULL, NULL, 'ddddd', 0, 0),
-(2, 'dantenguyen', 'fcfa2501effa118ca1de03f2f455ef21', 'dantenguyen@gmail.com', 'Dante Nguyen', '1357872211', '1000', NULL, NULL, 'ddddd', 0, 0),
-(3, 'namvuonghcm', '79bb2b42d2df57dcf57bc2a40df8dac8', 'namvuonghcm@gmail.com', 'Nam Vuong', '1357872223', '1554.989', '1FVbEosFVUhXVoWW7RBkCa9i5i4q6ChCdS', 'sdksdfjk', '26666962417B045329809A2B74EA0E7F3A3DB07CD4A4323AEBBD2A3E51724C91', 1, 0),
-(4, 'kentvuong', '363a530babcb58b44ac1807cb4adbc47', 'idvvn90@gmail.com', 'Kent Vuong', '1363597816', '1000.0', NULL, 'BDF22796C7225085F0531D7A67FBDCE5A6151FBF885DC7A7E39E0A2725F0DB8A', 'ddddd', 1, 0),
-(9, 'borain', '92eb5ffee6ae2fec3ad71c777531578f', 'trungthuc89@gmail.com', 'x', '1363688709', '1555.0', NULL, 'A435E894D9CE6BE0FC90033EC62A129D58725A2DF017811F79E81655E6CB7B13', 'ddddd', 1, 0),
-(10, 'dantruong', '0cc175b9c0f1b6a831c399e269772661', 'cotamthoi@gmail.com', 'thuc', '1363768265', '1000.0', NULL, '5B3ABB66E87DAF030FB5671751907059E8377F2A215FCF59770259891B83BE79', 'ddddd', 0, 0),
-(11, 'dante', '499b90fe8425c8823733ae9b74346c88', 'an.nguyenquocduy@gmail.com', 'nguyen an', '1363768975', '1000.0', NULL, '475C9D6E047CFC4F753588CE2C749D5A88011C6E7FD9E94F24D364209375C0D1', 'ddddd', 1, 0),
-(12, 'dgxv', 'dd4b1ddf9a2782926619cc7d5db618c0', 'hshdd@gmf.com', 'dkdjfn', '1363854273', '1000.0', NULL, '0D3C56DD45AE3D61FB32C8DD76C6BCB1953D6BA18DA6F8A75FA57D4006DD1E50', 'ddddd', 0, 0),
-(13, 'dante123456', 'e10adc3949ba59abbe56e057f20f883e', 'a1provip002@gmail.com', 'dante', '1363856194', '985.0', NULL, '650E6CD59B2F0CDDAF6C6E0C8B08DDD2C629C2352BFDEBAC487452C841CB22C5', NULL, 1, 0),
-(14, 'gg', '585790f98ff1dd61412aad36654e0371', 'vhj', 'vggh', '1363862216', '1000.0', NULL, '2DEE3AAC2B5564BEBD22608B0D6CA2E5DF5519D393045E95013177BCBA3DBF9C', NULL, 0, 0),
-(15, 'g', '19b19ffc30caef1c9376cd2982992a59', 'gh', 'fg', '1363862272', '1000.0', NULL, '7B7B5D686B02751A6B078098DDFDCB81D3F9028E6DB14C317DCBD860393F91F1', NULL, 0, 0),
-(16, 'gj', '19b19ffc30caef1c9376cd2982992a59', 'ft', 'gh', '1363862400', '1000.0', NULL, '60F6EA4D2DAF0A0B7EAE1CA78E7D0AE14C559688379BE7A56D5AAAEE4780197B', NULL, 0, 0);
+INSERT INTO `kb_user` (`user_id`, `username`, `password`, `email`, `fullname`, `date_create`, `balance`, `bitcoin_id`, `register_confirm_code`, `forgot_pass_confirm_code`, `is_active`, `is_facebook_connected`, `is_trial`, `is_lock`) VALUES
+(1, 'vuongngocnam', '4e7e9270dc88cbd961ff5e12bad98fab', 'vuongngocnam@gmail.com', 'Kent Vuong', '1357872252', '1000', NULL, NULL, 'ddddd', 0, 0, 1, 0),
+(2, 'dantenguyen', 'fcfa2501effa118ca1de03f2f455ef21', 'dantenguyen@gmail.com', 'Dante Nguyen', '1357872211', '1000', NULL, NULL, 'ddddd', 0, 0, 1, 0),
+(3, 'namvuonghcm', '79bb2b42d2df57dcf57bc2a40df8dac8', 'namvuonghcm@gmail.com', 'Nam Vuong', '1357872223', '1554.989', '1FVbEosFVUhXVoWW7RBkCa9i5i4q6ChCdS', 'sdksdfjk', '26666962417B045329809A2B74EA0E7F3A3DB07CD4A4323AEBBD2A3E51724C91', 1, 0, 1, 0),
+(4, 'kentvuong', '363a530babcb58b44ac1807cb4adbc47', 'idvvn90@gmail.com', 'Kent Vuong', '1363597816', '1000.0', NULL, 'BDF22796C7225085F0531D7A67FBDCE5A6151FBF885DC7A7E39E0A2725F0DB8A', 'ddddd', 1, 0, 1, 0),
+(9, 'borain', '92eb5ffee6ae2fec3ad71c777531578f', 'trungthuc89@gmail.com', 'x', '1363688709', '1555.0', NULL, 'A435E894D9CE6BE0FC90033EC62A129D58725A2DF017811F79E81655E6CB7B13', 'ddddd', 1, 0, 1, 0),
+(10, 'dantruong', '0cc175b9c0f1b6a831c399e269772661', 'cotamthoi@gmail.com', 'thuc', '1363768265', '1000.0', NULL, '5B3ABB66E87DAF030FB5671751907059E8377F2A215FCF59770259891B83BE79', 'ddddd', 0, 0, 1, 0),
+(11, 'dante', '499b90fe8425c8823733ae9b74346c88', 'an.nguyenquocduy@gmail.com', 'nguyen an', '1363768975', '1000.0', NULL, '475C9D6E047CFC4F753588CE2C749D5A88011C6E7FD9E94F24D364209375C0D1', 'ddddd', 1, 0, 1, 0),
+(12, 'dgxv', 'dd4b1ddf9a2782926619cc7d5db618c0', 'hshdd@gmf.com', 'dkdjfn', '1363854273', '1000.0', NULL, '0D3C56DD45AE3D61FB32C8DD76C6BCB1953D6BA18DA6F8A75FA57D4006DD1E50', 'ddddd', 0, 0, 1, 0),
+(13, 'dante123456', 'e10adc3949ba59abbe56e057f20f883e', 'a1provip002@gmail.com', 'dante', '1363856194', '985.0', NULL, '650E6CD59B2F0CDDAF6C6E0C8B08DDD2C629C2352BFDEBAC487452C841CB22C5', NULL, 1, 0, 1, 0),
+(14, 'gg', '585790f98ff1dd61412aad36654e0371', 'vhj', 'vggh', '1363862216', '1000.0', NULL, '2DEE3AAC2B5564BEBD22608B0D6CA2E5DF5519D393045E95013177BCBA3DBF9C', NULL, 0, 0, 1, 0),
+(15, 'g', '19b19ffc30caef1c9376cd2982992a59', 'gh', 'fg', '1363862272', '1000.0', NULL, '7B7B5D686B02751A6B078098DDFDCB81D3F9028E6DB14C317DCBD860393F91F1', NULL, 0, 0, 1, 0),
+(16, 'gj', '19b19ffc30caef1c9376cd2982992a59', 'ft', 'gh', '1363862400', '1000.0', NULL, '60F6EA4D2DAF0A0B7EAE1CA78E7D0AE14C559688379BE7A56D5AAAEE4780197B', NULL, 0, 0, 1, 0);
 
 -- --------------------------------------------------------
 
