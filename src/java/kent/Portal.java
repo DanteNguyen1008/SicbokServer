@@ -59,13 +59,15 @@ public class Portal extends HttpServlet {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
             String email = request.getParameter("email");
-            String fullname = request.getParameter("fullname");
+            String fullname = (request.getParameter("fullname") != null) ? request.getParameter("fullname") : "";
             boolean is_facebook_account = Boolean.parseBoolean(request.getParameter("is_facebook_account"));
             long dateCreate = System.currentTimeMillis() / 1000;
             float balance = Utils.DEFAULT_BALANCE;
             String bitcoinId = request.getParameter("bitcoin_id");
             String registerConfirmCode = Hash.getHashSHA256(username + dateCreate);
-            boolean isActive = false;
+            boolean isActive = true;
+            //boolean isActive = false;
+            
 
             User u = new User();
             jsonResponse = u.signUp(username, password, email, fullname,

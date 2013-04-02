@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2013 at 08:06 AM
+-- Generation Time: Apr 02, 2013 at 08:48 AM
 -- Server version: 5.5.24-log
 -- PHP Version: 5.4.3
 
@@ -134,7 +134,7 @@ BEGIN
 	END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_INSERT`(IN `inUsername` VARCHAR(50) CHARSET utf8, IN `inPassword` VARCHAR(255) CHARSET utf8, IN `inEmail` VARCHAR(50) CHARSET utf8, IN `inFullname` VARCHAR(255) CHARSET utf8, IN `inDateCreate` VARCHAR(50) CHARSET utf8, IN `inBalance` VARCHAR(255) CHARSET utf8, IN `inBitcoinId` VARCHAR(255) CHARSET utf8, IN `inRegisterConfirmCode` VARCHAR(255) CHARSET utf8, IN `inIsActive` TINYINT(1))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_INSERT`(IN `inUsername` VARCHAR(50) CHARSET utf8, IN `inPassword` VARCHAR(255) CHARSET utf8, IN `inEmail` VARCHAR(50) CHARSET utf8, IN `inFullname` VARCHAR(255) CHARSET utf8, IN `inDateCreate` VARCHAR(50) CHARSET utf8, IN `inBalance` VARCHAR(255) CHARSET utf8, IN `inBitcoinId` VARCHAR(255) CHARSET utf8, IN `inRegisterConfirmCode` VARCHAR(255) CHARSET utf8, IN `inIsActive` TINYINT(1), IN `isFacebookConnected` BIT(1))
     NO SQL
 BEGIN
 	#Routine body goes here...
@@ -147,7 +147,8 @@ BEGIN
                 `balance`,
                 `bitcoin_id`,
                 `register_confirm_code`,
-                `is_active`)
+                `is_active`,
+                `is_facebook_connected`)
 	VALUES(
 		inUsername,
                 MD5(inPassword),
@@ -157,7 +158,8 @@ BEGIN
                 inBalance,
                 inBitcoinId,
                 inRegisterConfirmCode,
-                inIsActive);
+                inIsActive,
+                isFacebookConnected);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_PAYMENT_INSERT`(IN `userId` INT(11), IN `typeOfPayment` TINYINT(1), IN `dateOfPayment` VARCHAR(50) CHARSET utf8, IN `balanceBefore` VARCHAR(255) CHARSET utf8, IN `balanceAfter` VARCHAR(255) CHARSET utf8)
@@ -593,7 +595,7 @@ CREATE TABLE IF NOT EXISTS `kb_user` (
   `is_trial` tinyint(1) NOT NULL DEFAULT '1',
   `is_lock` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
 
 --
 -- Dumping data for table `kb_user`

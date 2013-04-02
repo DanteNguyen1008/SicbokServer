@@ -36,16 +36,16 @@ public class DatabaseHandler {
     private Connection connection = null;//The database connection.
     private String strError;
     private CallableStatement proc;
-    /*
+    
      private String strHostURL = "mysql-sicbogame.jelastic.servint.net";
      private String strUsername = "kibowvn";
      private String strPassword = "nJUGP3yULEqmVJeQ";
      private String strDatabaseName = "kb_sicbok";
-     */
-    private String strHostURL = "localhost:3306";
-    private String strUsername = "root";
-    private String strPassword = "";
-    private String strDatabaseName = "kb_sicbok";
+     
+//    private String strHostURL = "localhost:3306";
+//    private String strUsername = "root";
+//    private String strPassword = "";
+//    private String strDatabaseName = "kb_sicbok";
 
     //<editor-fold defaultstate="collapsed" desc="Connect Mysql">
     /**
@@ -118,6 +118,7 @@ public class DatabaseHandler {
             }
             j = this.proc.executeUpdate();
         } catch (SQLException ex) {
+            ex.printStackTrace();
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         

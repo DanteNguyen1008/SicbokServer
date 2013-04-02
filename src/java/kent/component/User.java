@@ -150,15 +150,16 @@ public class User extends ResponseAbstract {
         /*
          * Execute SQL
          */
-        int rowAffected = 1;
+        int rowAffected = 0;
         isActive = is_facebook_account;
+        int activeinsert = (isActive == false) ? 0 : 1;
         try {
-            rowAffected = this.databaseHandler.executeSQL(
+            rowAffected = DatabaseHandler.getInstance().executeSQL(
                     "USER_INSERT",
                     new String[]{"inUsername", "inPassword", "inEmail", "inFullname", "inDateCreate",
                         "inBalance", "inBitcoinId", "inRegisterConfirmCode", "inIsActive", "is_facebook_connected"},
                     new Object[]{username, password, email, fullname, dateCreate,
-                        balance, bitcoinId, registerConfirmCode, isActive, is_facebook_account});
+                        balance, bitcoinId, registerConfirmCode, activeinsert, is_facebook_account});
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
