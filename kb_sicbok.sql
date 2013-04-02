@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2013 at 05:04 AM
+-- Generation Time: Apr 02, 2013 at 08:06 AM
 -- Server version: 5.5.24-log
 -- PHP Version: 5.4.3
 
@@ -250,6 +250,14 @@ BEGIN
         WHERE `email` = email_to_confirm;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_UPDATE_ACTIVE`(IN `userId` INT(11))
+    NO SQL
+BEGIN
+	UPDATE kb_user
+        SET `is_lock` = 1
+        WHERE `user_id` = userId;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_UPDATE_BALANCE`(IN `newBalance` VARCHAR(50) CHARSET utf8, IN `userId` INT(11))
     NO SQL
 BEGIN
@@ -265,6 +273,14 @@ BEGIN
 	#Routine body goes here...
 	UPDATE kb_user 
         SET `bitcoin_id` = newBitcoinId
+        WHERE `user_id` = userId;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `USER_UPDATE_DEACTIVE`(IN `userId` INT(11))
+    NO SQL
+BEGIN
+	UPDATE kb_user
+        SET `is_lock` = 0
         WHERE `user_id` = userId;
 END$$
 
